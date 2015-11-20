@@ -1,0 +1,3 @@
+<resources>
+    <item name="shadow_toolbar" type="drawable">@null</item>
+</resources>

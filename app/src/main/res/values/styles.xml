@@ -1,0 +1,54 @@
+<resources>
+
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/app_primary</item>
+        <item name="colorPrimaryDark">@color/app_primary_dark</item>
+        <item name="colorAccent">@color/app_accent</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Dark" />
+
+    <style name="Button" />
+
+    <style name="Button.Colored" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:minHeight">@dimen/default_press_size</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">@dimen/text_size_button</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="Text.Borderless">
+        <item name="android:minHeight">@dimen/default_press_size</item>
+        <item name="android:background">@drawable/selector_dark</item>
+        <item name="android:clickable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingLeft">@dimen/spacing_normal</item>
+        <item name="android:paddingRight">@dimen/spacing_normal</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/app_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">@dimen/text_size_button</item>
+    </style>
+
+    <style name="Image" />
+
+    <style name="Image.Button">
+        <item name="android:minHeight">@dimen/default_press_size</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@drawable/selector_light</item>
+        <item name="android:clickable">true</item>
+        <item name="android:scaleType">center</item>
+    </style>
+
+</resources>
