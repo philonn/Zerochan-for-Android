@@ -34,7 +34,7 @@
         <ImageView
             style="@style/Image.Button"
             android:onClick="onInformation"
-            android:src="@drawable/ic_information" />
+            android:src="@drawable/ic_info" />
     </LinearLayout>
 
     <android.support.v7.widget.Toolbar
