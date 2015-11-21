@@ -2,8 +2,9 @@ package tr.philon.zerochan.data;
 
 public class Api {
     public final static String BASE_URL = "http://www.zerochan.net/";
-    public final static String TAG_SEARCH = "search?";
+    public final static String TAG_EVERYTHING = null;
     public final static String TAG_POPULAR = "popular";
+    public final static String TAG_SEARCH = "search?";
     public final static String PARAM_QUERY = "q=";
     public final static String PARAM_PAGE = "p=";
     public final static String SORT_RECENT = "s=id";
@@ -18,7 +19,7 @@ public class Api {
     public static String getUrl(String query, int page, String sort, String dimensions){
         String s = BASE_URL;
 
-        if(query == null) s += "?";
+        if(query == TAG_EVERYTHING) s += "?";
         else  s += addParam(TAG_SEARCH, query);
 
         s += addParam(PARAM_PAGE, page + "")

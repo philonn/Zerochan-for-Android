@@ -1,12 +1,12 @@
 package tr.philon.zerochan.data;
 
-public class Page {
+public class ApiHelper {
     String mQuery;
     int mPage;
     String mSort;
     String mDimen;
 
-    public Page(){
+    public ApiHelper(){
         mQuery = null;
         mPage = 1;
         mSort = Api.SORT_RECENT;
@@ -30,7 +30,7 @@ public class Page {
     }
 
     public String getUrl(){
-        if(mQuery.equals(Api.TAG_POPULAR)){
+        if(mQuery != null && mQuery.equals(Api.TAG_POPULAR)){
             return Api.BASE_URL + Api.TAG_POPULAR;
         }
 

@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -30,6 +32,7 @@ public class DetailsActivity extends AppCompatActivity {
     String mImageUrl;
     File mImageCache;
     Future<File> mIonFile;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,12 +40,10 @@ public class DetailsActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         setSupportActionBar(mToolbar);
 
-        showLoading();
-
         mImageUrl = GalleryItem.getFullImage(getIntent().getStringExtra(ARG_IMAGE));
         mImageCache = new File(getExternalCacheDir(), GalleryItem.getFileName(mImageUrl));
 
-        if(!mImageCache.exists()){
+        if (!mImageCache.exists()) {
             mIonFile = Ion.with(DetailsActivity.this)
                     .load(mImageUrl)
                     .write(mImageCache)
@@ -62,12 +63,30 @@ public class DetailsActivity extends AppCompatActivity {
         }
     }
 
-    private void showLoading(){
-        mProgressBar.setVisibility(View.VISIBLE);
+    private void showImage() {
+        mSSImageView.setImage(ImageSource.uri(mImageCache.getPath()));
+        mProgressBar.setVisibility(View.GONE);
+
+        Animation anim = AnimationUtils.loadAnimation(DetailsActivity.this, R.anim.fade_in);
+        anim.setDuration(800);
+        mSSImageView.startAnimation(anim);
     }
 
-    private void showImage(){
-        mProgressBar.setVisibility(View.GONE);
-        mSSImageView.setImage(ImageSource.uri(mImageCache.getPath()));
+    @Override
+    public boolean onSupportNavigateUp() {
+        super.onBackPressed();
+        return true;
+    }
+
+    public void onShare(View view) {
+        Toast.makeText(DetailsActivity.this, "Note implemented yet", Toast.LENGTH_LONG).show();
+    }
+
+    public void onDownload(View view) {
+        Toast.makeText(DetailsActivity.this, "Note implemented yet", Toast.LENGTH_LONG).show();
+    }
+
+    public void onInformation(View view) {
+        Toast.makeText(DetailsActivity.this, "Note implemented yet", Toast.LENGTH_LONG).show();
     }
 }
