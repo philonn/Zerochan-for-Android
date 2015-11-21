@@ -25,9 +25,10 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import tr.philon.zerochan.R;
 import tr.philon.zerochan.data.Api;
-import tr.philon.zerochan.data.Page;
+import tr.philon.zerochan.data.ApiHelper;
 import tr.philon.zerochan.data.model.GalleryItem;
 import tr.philon.zerochan.ui.activities.DetailsActivity;
+import tr.philon.zerochan.ui.activities.MainActivity;
 import tr.philon.zerochan.ui.adapters.GalleryAdapter;
 import tr.philon.zerochan.util.PixelUtils;
 import tr.philon.zerochan.util.SoupUtils;
@@ -36,23 +37,34 @@ public class MediaFragment extends Fragment {
     Context context;
     OkHttpClient mHttpClient = new OkHttpClient();
 
-    Page mPage = new Page();
+    ApiHelper mApiHelper = new ApiHelper();
     List<GalleryItem> mGridItems;
 
     @Bind(R.id.grid) GridView mGrid;
     @Bind(R.id.view_flipper) ViewFlipper mViewFlipper;
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.view_grid_gallery, container, false);
-        context = getActivity();
         ButterKnife.bind(this, rootView);
+        context = getActivity();
+
+        int id = getArguments().getInt(MainActivity.ARG_SECTION, 0);
+        switch (id){
+            case MainActivity.ID_EVERYTHING:
+                mApiHelper.setQuery(Api.TAG_EVERYTHING);
+                break;
+            case MainActivity.ID_POPULAR:
+                mApiHelper.setQuery(Api.TAG_POPULAR);
+                break;
+            case MainActivity.ID_TAGS:
+                mApiHelper.setQuery(Api.TAG_POPULAR);
+                break;
+        }
 
         mGrid.setNumColumns(getPossibleColumnsCount());
-        mPage.setQuery(Api.TAG_POPULAR);
-        loadPage(mPage.getUrl());
+        loadPage(mApiHelper.getUrl());
 
         return rootView;
     }

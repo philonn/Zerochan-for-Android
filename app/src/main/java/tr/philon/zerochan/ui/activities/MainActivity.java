@@ -1,10 +1,24 @@
 package tr.philon.zerochan.ui.activities;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SectionDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -12,8 +26,19 @@ import tr.philon.zerochan.R;
 import tr.philon.zerochan.ui.fragments.MediaFragment;
 
 public class MainActivity extends AppCompatActivity {
+    public static final String ARG_SECTION = "arg_section";
+    public static final int ID_EVERYTHING = 1;
+    public static final int ID_POPULAR = 2;
+    public static final int ID_TAGS = 3;
+    private static final int ID_ABOUT = 4;
 
     @Bind(R.id.toolbar) Toolbar mToolbar;
+    ActionBar mActionbar;
+    Drawer mDrawer;
+
+    List<SecondaryDrawerItem> mSelectedTagsList = new ArrayList<>();
+    int lastDrawerItemPosition;
+    int lastTagItemPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,14 +46,102 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setSupportActionBar(mToolbar);
-        replaceFragment();
+        mActionbar = getSupportActionBar();
+
+        mDrawer = new DrawerBuilder()
+                .withActivity(this)
+                .withDrawerWidthDp(280)
+                .withToolbar(mToolbar)
+                .withHeader(R.layout.view_drawer_header)
+                .withSelectedItem(ID_EVERYTHING)
+                .addDrawerItems(
+                        new PrimaryDrawerItem().withName("Everything").withIdentifier(ID_EVERYTHING)
+                                .withIcon(R.drawable.ic_image).withIconTintingEnabled(true),
+                        new PrimaryDrawerItem().withName("Popular Today").withIdentifier(ID_POPULAR)
+                                .withIcon(R.drawable.ic_today).withIconTintingEnabled(true),
+                        new PrimaryDrawerItem().withName("Tags").withIdentifier(ID_TAGS)
+                                .withIcon(R.drawable.ic_tag).withIconTintingEnabled(true),
+                        new DividerDrawerItem(),
+                        new SecondaryDrawerItem().withName("About").withIdentifier(ID_ABOUT).withSelectable(false))
+                .withOnDrawerItemClickListener(drawerItemClickListener)
+                .withOnDrawerItemLongClickListener(drawerItemLongClickListener)
+                .build();
+
+        replaceFragment(ID_EVERYTHING);
+        lastDrawerItemPosition = 2;
+        lastTagItemPosition = lastDrawerItemPosition;
     }
 
-    public void replaceFragment() {
+    public void replaceFragment(int id) {
+        Fragment fragment = new MediaFragment();
+        Bundle bundle = new Bundle();
+        String title = "";
+
+        switch (id){
+            case ID_EVERYTHING:
+                title = "Everything";
+                break;
+            case ID_POPULAR:
+                title = "Popular Today";
+                break;
+            case ID_TAGS:
+                title = "Tags";
+                break;
+        }
+
+        //mToolbar.setTitle(title);
+        mActionbar.setTitle(title);
+        bundle.putInt(ARG_SECTION, id);
+        fragment.setArguments(bundle);
+
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_container, new MediaFragment())
+                .replace(R.id.main_container, fragment)
                 .commit();
     }
+
+    public void addTagItem(String name) {
+        if (mSelectedTagsList.isEmpty()) {
+            mDrawer.addItemAtPosition(
+                    new SectionDrawerItem().withName("Selected Tags"), lastDrawerItemPosition++);
+        }
+
+        mDrawer.addItemAtPosition(
+                new SecondaryDrawerItem().withName(name), lastDrawerItemPosition++);
+    }
+
+    public void removeTagItem(int position){
+        mDrawer.removeItemByPosition(position);
+    }
+
+    public void clearTagSelection(){
+        lastTagItemPosition = lastDrawerItemPosition;
+        removeTagItem(lastTagItemPosition++);
+
+        for (SecondaryDrawerItem item : mSelectedTagsList){
+            mSelectedTagsList.remove(item);
+            removeTagItem(lastTagItemPosition++);
+        }
+    }
+
+    private Drawer.OnDrawerItemClickListener drawerItemClickListener = new Drawer.OnDrawerItemClickListener(){
+        @Override
+        public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+            int id = drawerItem.getIdentifier();
+            if(id <= ID_TAGS) replaceFragment(id);
+            return false;
+        }
+    };
+
+    private Drawer.OnDrawerItemLongClickListener drawerItemLongClickListener = new Drawer.OnDrawerItemLongClickListener(){
+        @Override
+        public boolean onItemLongClick(View view, int position, IDrawerItem drawerItem) {
+            int id = drawerItem.getIdentifier();
+            if(id > ID_TAGS && id != ID_ABOUT){
+                /* empty */
+            }
+            return false;
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

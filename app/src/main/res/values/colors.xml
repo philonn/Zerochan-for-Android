@@ -20,4 +20,14 @@
     <color name="text_secondary">#8A000000</color> <!-- 54 / 727272 -->
     <color name="text_primary_light">#DE9e9e9e</color> <!-- 87 -->
     <color name="text_secondary_light">#8A9e9e9e</color> <!-- 54 -->
+
+    <color name="material_drawer_background">#303030</color>
+    <color name="material_drawer_primary_text">#DEFFFFFF</color>
+    <color name="material_drawer_primary_icon">#8AFFFFFF</color>
+    <color name="material_drawer_secondary_text">#8AFFFFFF</color>
+    <color name="material_drawer_hint_text">#42FFFFFF</color>
+    <color name="material_drawer_divider">#1FFFFFFF</color>
+    <color name="material_drawer_selected">#202020</color>
+    <color name="material_drawer_selected_text">@color/app_primary</color>
+    <color name="material_drawer_header_selection_text">#FFF</color>
 </resources>
