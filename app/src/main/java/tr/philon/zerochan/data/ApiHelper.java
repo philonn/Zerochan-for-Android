@@ -2,16 +2,21 @@ package tr.philon.zerochan.data;
 
 public class ApiHelper {
     String mQuery;
-    int mPage;
     String mSort;
+    String mTime;
     String mDimen;
-    boolean isTagPage;
+    int mPage;
 
     public ApiHelper(){
-        mQuery = null;
-        mPage = 1;
+        mQuery = Api.TAG_EVERYTHING;
         mSort = Api.SORT_RECENT;
+        mTime = Api.TIME_ALL;
         mDimen = Api.DIMEN_ALL;
+        mPage = 1;
+    }
+
+    public String getUrl(){
+        return Api.getUrl(mQuery, mSort, mTime, mDimen, mPage);
     }
 
     public void setQuery(String query) {
@@ -22,39 +27,21 @@ public class ApiHelper {
         mPage = page;
     }
 
-    public void setSort(String sort) {
+    public void setSort(String sort, String time) {
         mSort = sort;
+        mTime = time;
     }
 
     public void setDimen(String dimen) {
         mDimen = dimen;
     }
 
-    public void setIsTagPage(boolean isTagPage) {
-        this.isTagPage = isTagPage;
-    }
-
-    public String getUrl(){
-        if(mQuery != Api.TAG_EVERYTHING
-                && mQuery.equals(Api.TAG_POPULAR)){
-            return Api.BASE_URL + Api.TAG_POPULAR;
-        }
-
-        if(isTagPage){
-            return Api.BASE_URL + mQuery + "?s=tag"+ Api.AND + Api.PARAM_PAGE + mPage;
-        }
-
-        return Api.getUrl(mQuery, mPage, mSort, mDimen);
-    }
-
-    public int getPage(){
+    public int getPage() {
         return mPage;
     }
 
-    public String nextPage(){
+    public String nextPage() {
         mPage++;
-
-        if(isTagPage) return Api.BASE_URL + mQuery + "?s=tag"+ Api.AND + Api.PARAM_PAGE + mPage;
-        return Api.getUrl(mQuery, mPage, mSort, mDimen);
+        return getUrl();
     }
 }

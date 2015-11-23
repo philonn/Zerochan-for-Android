@@ -9,6 +9,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -16,6 +19,7 @@ import tr.philon.zerochan.R;
 import tr.philon.zerochan.data.model.GalleryItem;
 
 import java.util.List;
+import java.util.Random;
 
 public class GalleryAdapter extends ArrayAdapter<GalleryItem> {
     private Context context;
@@ -51,9 +55,42 @@ public class GalleryAdapter extends ArrayAdapter<GalleryItem> {
             mHolder = (ViewHolder) convertView.getTag();
         }
 
+        int random = new Random().nextInt((5 - 1) + 1) + 1;
+        float f = 1f;
+        switch (random) {
+            case 1:
+                f = 0.6f;
+                break;
+            case 2:
+                f = 0.5f;
+                break;
+            case 3:
+                f = 0.4f;
+                break;
+            case 4:
+                f = 0.3f;
+                break;
+            case 5:
+                f = 0.2f;
+                break;
+        }
+
+        mHolder.image.setAlpha(f);
         Glide.with(context)
                 .load(items.get(position).getThumbnail())
                 .centerCrop()
+                .listener(new RequestListener<String, GlideDrawable>() {
+                    @Override
+                    public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                        mHolder.image.setAlpha(1f);
+                        return false;
+                    }
+                })
                 .into(mHolder.image);
 
         return convertView;
@@ -73,5 +110,4 @@ public class GalleryAdapter extends ArrayAdapter<GalleryItem> {
     public long getItemId(int position) {
         return 0;
     }
-
 }

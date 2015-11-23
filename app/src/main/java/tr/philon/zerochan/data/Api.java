@@ -1,35 +1,47 @@
 package tr.philon.zerochan.data;
 
+/**
+ * param : query,
+ * param : page, max 100.
+ * param : sort, 'id' recent, `fav` popular by time,
+ *            [only for tag pages] `tag` name, `count` popular / count.
+ * param : time, `0` all-time, `1` last-week, `2` last-3-mo.
+ * param : dimension, `0` all-sizes, `1` large-and-better, `2` only-very-large.
+ */
 public class Api {
     public final static String BASE_URL = "http://www.zerochan.net";
-    public final static String TAG_EVERYTHING = null;
-    public final static String TAG_POPULAR = "/popular";
-    public final static String TAG_SEARCH = "/search?";
-    public final static String TAG_META_TAGS = "/Meta+Tags";
-    public final static String PARAM_QUERY = "q=";
-    public final static String PARAM_PAGE = "p=";
-    public final static String SORT_RECENT = "s=id";
-    public final static String SORT_POPULAR_ALL = "s=fav&t=0";
-    public final static String SORT_POPULAR_LAST_WEEK = "s=fav&t=1";
-    public final static String SORT_POPULAR_THREE_WEEKS = "s=fav&t=2";
-    public final static String DIMEN_ALL = "d=0";
-    public final static String DIMEN_LARGE_BETTER = "d=1";
-    public final static String DIMEN_LARGE = "d=2";
+    public final static String QMARK = "/?";
     public final static String AND = "&";
+    /* Special Queries */
+    public final static String TAG_EVERYTHING = QMARK;
+    public final static String TAG_POPULAR = "/popular";
+    public final static String TAG_META_TAGS = "/Meta+Tags";
+    /* Parameters */
+    public final static String PARAM_QUERY = "";
+    public final static String PARAM_PAGE = "p=";
+    public final static String PARAM_SORT = "s=";
+    public final static String PARAM_TIME = "t=";
+    public final static String PARAM_DIMEN = "t=";
+    /* Values */
+    public final static String SORT_RECENT = "id";
+    public final static String SORT_POPULAR = "fav";
+    public final static String SORT_NAME = "tag";
+    public final static String SORT_COUNT = "count";
+    public final static String TIME_ALL = "0";
+    public final static String TIME_LAST_WEEK = "1";
+    public final static String TIME_LAST_THREE_WEEKS = "2";
+    public final static String DIMEN_ALL = "0";
+    public final static String DIMEN_LARGE_BETTER = "1";
+    public final static String DIMEN_LARGE = "2";
 
-    public static String getUrl(String query, int page, String sort, String dimensions){
-        String s = BASE_URL;
+    public static String getUrl(String query, String sort, String time, String dimension, int page){
+        if (query == TAG_POPULAR)
+            return BASE_URL + TAG_POPULAR;
 
-        if(query == TAG_EVERYTHING) s += "/?";
-        else  s += addParam(TAG_SEARCH, query);
-
-        s += addParam(PARAM_PAGE, page + "")
-                + AND + addParam(sort, null)
-                + AND + addParam(dimensions, null);
-        return s;
-    }
-
-    private static String addParam(String param, String value){
-        return (value == null) ? param : param + value;
+        return BASE_URL + query + QMARK +
+                PARAM_SORT + sort + AND +
+                PARAM_TIME + time + AND +
+                PARAM_DIMEN + dimension + AND +
+                PARAM_PAGE + page;
     }
 }
