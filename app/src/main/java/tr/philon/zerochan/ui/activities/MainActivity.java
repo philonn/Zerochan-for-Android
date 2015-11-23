@@ -23,7 +23,8 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import tr.philon.zerochan.R;
-import tr.philon.zerochan.ui.fragments.MediaFragment;
+import tr.philon.zerochan.ui.fragments.GalleryFragment;
+import tr.philon.zerochan.ui.fragments.TagsFragment;
 
 public class MainActivity extends AppCompatActivity {
     public static final String ARG_SECTION = "arg_section";
@@ -32,7 +33,8 @@ public class MainActivity extends AppCompatActivity {
     public static final int ID_TAGS = 3;
     private static final int ID_ABOUT = 4;
 
-    @Bind(R.id.toolbar) Toolbar mToolbar;
+    @Bind(R.id.toolbar)
+    Toolbar mToolbar;
     ActionBar mActionbar;
     Drawer mDrawer;
 
@@ -73,11 +75,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void replaceFragment(int id) {
-        Fragment fragment = new MediaFragment();
+        Fragment fragment = new GalleryFragment();
         Bundle bundle = new Bundle();
         String title = "";
 
-        switch (id){
+        switch (id) {
             case ID_EVERYTHING:
                 title = "Everything";
                 break;
@@ -86,10 +88,10 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case ID_TAGS:
                 title = "Tags";
+                fragment = new TagsFragment();
                 break;
         }
 
-        //mToolbar.setTitle(title);
         mActionbar.setTitle(title);
         bundle.putInt(ARG_SECTION, id);
         fragment.setArguments(bundle);
@@ -109,34 +111,34 @@ public class MainActivity extends AppCompatActivity {
                 new SecondaryDrawerItem().withName(name), lastDrawerItemPosition++);
     }
 
-    public void removeTagItem(int position){
+    public void removeTagItem(int position) {
         mDrawer.removeItemByPosition(position);
     }
 
-    public void clearTagSelection(){
+    public void clearTagSelection() {
         lastTagItemPosition = lastDrawerItemPosition;
         removeTagItem(lastTagItemPosition++);
 
-        for (SecondaryDrawerItem item : mSelectedTagsList){
+        for (SecondaryDrawerItem item : mSelectedTagsList) {
             mSelectedTagsList.remove(item);
             removeTagItem(lastTagItemPosition++);
         }
     }
 
-    private Drawer.OnDrawerItemClickListener drawerItemClickListener = new Drawer.OnDrawerItemClickListener(){
+    private Drawer.OnDrawerItemClickListener drawerItemClickListener = new Drawer.OnDrawerItemClickListener() {
         @Override
         public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
             int id = drawerItem.getIdentifier();
-            if(id <= ID_TAGS) replaceFragment(id);
+            if (id <= ID_TAGS) replaceFragment(id);
             return false;
         }
     };
 
-    private Drawer.OnDrawerItemLongClickListener drawerItemLongClickListener = new Drawer.OnDrawerItemLongClickListener(){
+    private Drawer.OnDrawerItemLongClickListener drawerItemLongClickListener = new Drawer.OnDrawerItemLongClickListener() {
         @Override
         public boolean onItemLongClick(View view, int position, IDrawerItem drawerItem) {
             int id = drawerItem.getIdentifier();
-            if(id > ID_TAGS && id != ID_ABOUT){
+            if (id > ID_TAGS && id != ID_ABOUT) {
                 /* empty */
             }
             return false;

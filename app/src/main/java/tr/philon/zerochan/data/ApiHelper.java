@@ -5,6 +5,7 @@ public class ApiHelper {
     int mPage;
     String mSort;
     String mDimen;
+    boolean isTagPage;
 
     public ApiHelper(){
         mQuery = null;
@@ -29,16 +30,31 @@ public class ApiHelper {
         mDimen = dimen;
     }
 
+    public void setIsTagPage(boolean isTagPage) {
+        this.isTagPage = isTagPage;
+    }
+
     public String getUrl(){
-        if(mQuery != null && mQuery.equals(Api.TAG_POPULAR)){
+        if(mQuery != Api.TAG_EVERYTHING
+                && mQuery.equals(Api.TAG_POPULAR)){
             return Api.BASE_URL + Api.TAG_POPULAR;
+        }
+
+        if(isTagPage){
+            return Api.BASE_URL + mQuery + "?s=tag"+ Api.AND + Api.PARAM_PAGE + mPage;
         }
 
         return Api.getUrl(mQuery, mPage, mSort, mDimen);
     }
 
+    public int getPage(){
+        return mPage;
+    }
+
     public String nextPage(){
         mPage++;
+
+        if(isTagPage) return Api.BASE_URL + mQuery + "?s=tag"+ Api.AND + Api.PARAM_PAGE + mPage;
         return Api.getUrl(mQuery, mPage, mSort, mDimen);
     }
 }

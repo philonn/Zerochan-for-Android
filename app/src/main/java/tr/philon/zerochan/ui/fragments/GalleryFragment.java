@@ -33,7 +33,7 @@ import tr.philon.zerochan.ui.adapters.GalleryAdapter;
 import tr.philon.zerochan.util.PixelUtils;
 import tr.philon.zerochan.util.SoupUtils;
 
-public class MediaFragment extends Fragment {
+public class GalleryFragment extends Fragment {
     Context context;
     OkHttpClient mHttpClient = new OkHttpClient();
 
@@ -46,7 +46,7 @@ public class MediaFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.view_grid_gallery, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_gallery, container, false);
         ButterKnife.bind(this, rootView);
         context = getActivity();
 
@@ -100,7 +100,7 @@ public class MediaFragment extends Fragment {
                         if (!response.isSuccessful()) {
                             showView("error");
                         } else {
-                            mGridItems = SoupUtils.exportItems(body);
+                            mGridItems = SoupUtils.exportGalleryItems(body);
                             mGrid.setAdapter(new GalleryAdapter(context, R.layout.item_gallery, mGridItems, getColumnWidth()));
                             mGrid.setOnItemClickListener(myListener);
                             showView("grid");
