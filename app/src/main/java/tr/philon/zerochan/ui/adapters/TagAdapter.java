@@ -99,4 +99,8 @@ public class TagAdapter extends ArrayAdapter<SelectableItem> {
 
         notifyDataSetChanged();
     }
+
+    public boolean isSelectionAvailable() {
+        return !mSelectedItems.isEmpty();
+    }
 }

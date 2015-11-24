@@ -1,9 +1,11 @@
 package tr.philon.zerochan.ui.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -20,6 +22,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
+import com.melnykov.fab.FloatingActionButton;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,6 +34,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import tr.philon.zerochan.R;
 import tr.philon.zerochan.data.model.SelectableItem;
+import tr.philon.zerochan.ui.activities.SearchActivity;
 import tr.philon.zerochan.ui.adapters.TagAdapter;
 
 public class TagsFragment extends Fragment {
@@ -46,7 +50,8 @@ public class TagsFragment extends Fragment {
     List<SelectableItem> mSelectedTags;
     TagAdapter mAdapter;
 
-    @Bind(R.id.grid_tags) GridView mGrid;
+    @Bind(R.id.tags_grid) GridView mGrid;
+    @Bind(R.id.tags_fab) FloatingActionButton mFAB;
     @Bind(R.id.search_edit) EditText mSearchText;
     @Bind(R.id.search_clear) ImageButton mSearchClearBtn;
 
@@ -57,11 +62,46 @@ public class TagsFragment extends Fragment {
         ButterKnife.bind(this, rootView);
         mContext = getActivity();
 
+        initFAB();
         initSearchBar();
         downloadTags();
         //readTags();
 
         return rootView;
+    }
+
+    private void updateFABVisibility() {
+        if (mAdapter != null) {
+            if (mAdapter.isSelectionAvailable()) showFAB();
+            else hideFAB();
+        }
+    }
+
+    private void showFAB() {
+        mFAB.animate().cancel();
+        mFAB.animate()
+                .alpha(1f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .setInterpolator(new FastOutSlowInInterpolator())
+                .setStartDelay(200)
+                .start();
+    }
+
+    private void hideFAB() {
+        mFAB.animate().cancel();
+        mFAB.animate()
+                .alpha(0f)
+                .scaleX(0f)
+                .scaleY(0f)
+                .setInterpolator(new FastOutSlowInInterpolator())
+                .setStartDelay(200)
+                .start();
+    }
+
+    private void initFAB() {
+        hideFAB();
+        mFAB.setOnClickListener(onFABClickListener);
     }
 
     public void initSearchBar() {
@@ -90,6 +130,8 @@ public class TagsFragment extends Fragment {
                 } else {
                     mSearchClearBtn.setVisibility(View.GONE);
                 }
+
+                updateFABVisibility();
             }
 
             @Override
@@ -176,11 +218,25 @@ public class TagsFragment extends Fragment {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
             mAdapter.updateSelection(position);
+            updateFABVisibility();
 
             SelectableItem item = mAdapter.getItem(position);
             if (item.isSelected()) mSelectedTags.add(item);
             else mSelectedTags.remove(item);
+        }
+    };
 
+    private View.OnClickListener onFABClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            ArrayList<String> stringArray = new ArrayList<>();
+            for (SelectableItem item : mSelectedTags) {
+                stringArray.add(item.getTitle());
+            }
+
+            Intent intent = new Intent(mContext, SearchActivity.class);
+            intent.putStringArrayListExtra(SearchActivity.ARG_TAGS, stringArray);
+            startActivity(intent);
         }
     };
 }

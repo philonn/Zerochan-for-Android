@@ -19,6 +19,8 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 
 import butterknife.Bind;
@@ -29,6 +31,7 @@ import tr.philon.zerochan.data.ApiHelper;
 import tr.philon.zerochan.data.model.GalleryItem;
 import tr.philon.zerochan.ui.activities.DetailsActivity;
 import tr.philon.zerochan.ui.activities.MainActivity;
+import tr.philon.zerochan.ui.activities.SearchActivity;
 import tr.philon.zerochan.ui.adapters.GalleryAdapter;
 import tr.philon.zerochan.util.PixelUtils;
 import tr.philon.zerochan.util.SoupUtils;
@@ -58,8 +61,14 @@ public class GalleryFragment extends Fragment {
             case MainActivity.ID_POPULAR:
                 mApiHelper.setQuery(Api.TAG_POPULAR);
                 break;
-            case MainActivity.ID_TAGS:
-                mApiHelper.setQuery(Api.TAG_POPULAR);
+            default:
+                String query = getArguments().getString(SearchActivity.ARG_TAGS);
+                try {
+                    query = URLEncoder.encode(query, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                mApiHelper.setQuery(query);
                 break;
         }
 

@@ -44,7 +44,7 @@
                 android:background="@color/transparent"
                 android:cursorVisible="false"
                 android:hint="@string/hint_tag_search"
-                android:imeOptions="actionSearch"
+                android:imeOptions="actionDone"
                 android:inputType="text"
                 android:paddingLeft="56dp"
                 android:paddingRight="56dp"

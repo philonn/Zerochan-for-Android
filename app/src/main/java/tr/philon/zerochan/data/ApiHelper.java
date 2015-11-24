@@ -19,12 +19,21 @@ public class ApiHelper {
         return Api.getUrl(mQuery, mSort, mTime, mDimen, mPage);
     }
 
+    public String nextPage() {
+        mPage++;
+        return getUrl();
+    }
+
     public void setQuery(String query) {
         mQuery = query;
     }
 
     public void setPage(int page) {
         mPage = page;
+    }
+
+    public int getPage() {
+        return mPage;
     }
 
     public void setSort(String sort, String time) {
@@ -34,14 +43,5 @@ public class ApiHelper {
 
     public void setDimen(String dimen) {
         mDimen = dimen;
-    }
-
-    public int getPage() {
-        return mPage;
-    }
-
-    public String nextPage() {
-        mPage++;
-        return getUrl();
     }
 }
