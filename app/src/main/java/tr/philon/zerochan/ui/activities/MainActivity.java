@@ -38,10 +38,6 @@ public class MainActivity extends AppCompatActivity {
     ActionBar mActionbar;
     Drawer mDrawer;
 
-    List<SecondaryDrawerItem> mSelectedTagsList = new ArrayList<>();
-    int lastDrawerItemPosition;
-    int lastTagItemPosition;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,8 +66,6 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
         replaceFragment(ID_EVERYTHING);
-        lastDrawerItemPosition = 2;
-        lastTagItemPosition = lastDrawerItemPosition;
     }
 
     public void replaceFragment(int id) {
@@ -92,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
-        mActionbar.setTitle(title);
+        setActionbarTitle(title);
         bundle.putInt(ARG_SECTION, id);
         fragment.setArguments(bundle);
 
@@ -101,28 +95,8 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
-    public void addTagItem(String name) {
-        if (mSelectedTagsList.isEmpty()) {
-            mDrawer.addItemAtPosition(
-                    new SectionDrawerItem().withName("Selected Tags"), lastDrawerItemPosition++);
-        }
-
-        mDrawer.addItemAtPosition(
-                new SecondaryDrawerItem().withName(name), lastDrawerItemPosition++);
-    }
-
-    public void removeTagItem(int position) {
-        mDrawer.removeItemByPosition(position);
-    }
-
-    public void clearTagSelection() {
-        lastTagItemPosition = lastDrawerItemPosition;
-        removeTagItem(lastTagItemPosition++);
-
-        for (SecondaryDrawerItem item : mSelectedTagsList) {
-            mSelectedTagsList.remove(item);
-            removeTagItem(lastTagItemPosition++);
-        }
+    public void setActionbarTitle(String title){
+        mActionbar.setTitle(title);
     }
 
     private Drawer.OnDrawerItemClickListener drawerItemClickListener = new Drawer.OnDrawerItemClickListener() {
