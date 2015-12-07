@@ -26,8 +26,8 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import tr.philon.zerochan.R;
+import tr.philon.zerochan.data.Service;
 import tr.philon.zerochan.data.Api;
-import tr.philon.zerochan.data.ApiHelper;
 import tr.philon.zerochan.data.model.GalleryItem;
 import tr.philon.zerochan.ui.activities.DetailsActivity;
 import tr.philon.zerochan.ui.activities.MainActivity;
@@ -40,7 +40,7 @@ import tr.philon.zerochan.util.SoupUtils;
 public class GalleryFragment extends Fragment implements GalleryAdapter.ClickListener {
     Context context;
     OkHttpClient mHttpClient = new OkHttpClient();
-    ApiHelper mApiHelper = new ApiHelper();
+    Api mApi = new Api();
 
     List<GalleryItem> mGridItems;
     GalleryAdapter mAdapter;
@@ -58,10 +58,10 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
         int id = getArguments().getInt(MainActivity.ARG_SECTION, 0);
         switch (id){
             case MainActivity.ID_EVERYTHING:
-                mApiHelper.setQuery(Api.TAG_EVERYTHING);
+                mApi.setQuery(Service.TAG_EVERYTHING);
                 break;
             case MainActivity.ID_POPULAR:
-                mApiHelper.setQuery(Api.TAG_POPULAR);
+                mApi.setQuery(Service.TAG_POPULAR);
                 break;
             default:
                 String query = getArguments().getString(SearchActivity.ARG_TAGS);
@@ -70,12 +70,12 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
-                mApiHelper.setQuery(query);
+                mApi.setQuery(query);
                 break;
         }
 
         setUpRecyclerView();
-        loadPage(mApiHelper.getUrl());
+        loadPage(mApi.getUrl());
 
         return rootView;
     }
