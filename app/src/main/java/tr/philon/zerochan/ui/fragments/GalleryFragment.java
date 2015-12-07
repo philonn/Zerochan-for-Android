@@ -4,12 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.ViewFlipper;
 
 import com.squareup.okhttp.Call;
@@ -33,17 +33,19 @@ import tr.philon.zerochan.ui.activities.DetailsActivity;
 import tr.philon.zerochan.ui.activities.MainActivity;
 import tr.philon.zerochan.ui.activities.SearchActivity;
 import tr.philon.zerochan.ui.adapters.GalleryAdapter;
+import tr.philon.zerochan.ui.widget.GridInsetDecoration;
 import tr.philon.zerochan.util.PixelUtils;
 import tr.philon.zerochan.util.SoupUtils;
 
-public class GalleryFragment extends Fragment {
+public class GalleryFragment extends Fragment implements GalleryAdapter.ClickListener {
     Context context;
     OkHttpClient mHttpClient = new OkHttpClient();
-
     ApiHelper mApiHelper = new ApiHelper();
-    List<GalleryItem> mGridItems;
 
-    @Bind(R.id.grid) GridView mGrid;
+    List<GalleryItem> mGridItems;
+    GalleryAdapter mAdapter;
+
+    @Bind(R.id.recyclerGrid) RecyclerView mRecycler;
     @Bind(R.id.view_flipper) ViewFlipper mViewFlipper;
 
     @Override
@@ -72,11 +74,29 @@ public class GalleryFragment extends Fragment {
                 break;
         }
 
-        mGrid.setNumColumns(getPossibleColumnsCount());
+        setUpRecyclerView();
         loadPage(mApiHelper.getUrl());
 
         return rootView;
     }
+
+    private void setUpRecyclerView() {
+        mRecycler.setLayoutManager(new GridLayoutManager(context, getPossibleColumnsCount()));
+        mRecycler.addItemDecoration(new GridInsetDecoration(PixelUtils.dpToPx(4)));
+    }
+
+    private int getPossibleColumnsCount() {
+        return PixelUtils.getScreenWidth(context) / PixelUtils.dpToPx(100);
+    }
+
+    private int getColumnWidth() {
+        int screenWidth = PixelUtils.getScreenWidth(context);
+        int columnCount = getPossibleColumnsCount();
+        screenWidth = screenWidth - (2 * PixelUtils.dpToPx(2));
+
+        return screenWidth / columnCount;
+    }
+
 
     public void loadPage(String url) {
         showView("loading");
@@ -109,16 +129,21 @@ public class GalleryFragment extends Fragment {
                         if (!response.isSuccessful()) {
                             showView("error");
                         } else {
-                            mGridItems = SoupUtils.exportGalleryItems(body);
-                            mGrid.setAdapter(new GalleryAdapter(context, R.layout.item_gallery, mGridItems, getColumnWidth()));
-                            mGrid.setOnItemClickListener(myListener);
-                            showView("grid");
+                            displayImages(body);
                         }
                     }
                 });
             }
         });
     }
+
+    private void displayImages(String response){
+        mGridItems = SoupUtils.exportGalleryItems(response);
+        mAdapter = new GalleryAdapter(this, mGridItems, getColumnWidth(), this);
+        mRecycler.setAdapter(mAdapter);
+        showView("grid");
+    }
+
 
     private void showView(String view) {
         switch (view) {
@@ -134,24 +159,13 @@ public class GalleryFragment extends Fragment {
         }
     }
 
-    private int getPossibleColumnsCount() {
-        return PixelUtils.getScreenWidth(context) / PixelUtils.dpToPx(100);
+    @SuppressWarnings("unchecked")
+    @Override
+    public void onItemClick(View v) {
+        int position = mRecycler.getChildAdapterPosition(v);
+
+        Intent intent = new Intent(context, DetailsActivity.class);
+        intent.putExtra(DetailsActivity.ARG_IMAGE, mGridItems.get(position).getThumbnail());
+        startActivity(intent);
     }
-
-    private int getColumnWidth() {
-        int screenWidth = PixelUtils.getScreenWidth(context);
-        int columnCount = getPossibleColumnsCount();
-        screenWidth = screenWidth - (2 * PixelUtils.dpToPx(2));
-
-        return screenWidth / columnCount;
-    }
-
-    private AdapterView.OnItemClickListener myListener = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            Intent intent = new Intent(context, DetailsActivity.class);
-            intent.putExtra(DetailsActivity.ARG_IMAGE, mGridItems.get(i).getThumbnail());
-            startActivity(intent);
-        }
-    };
 }

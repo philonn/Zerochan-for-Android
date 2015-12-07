@@ -3,11 +3,13 @@
     android:id="@+id/item_gallery_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/spacing_micro">
+    android:foreground="@drawable/selector_light">
 
     <ImageView
         android:id="@+id/item_gallery_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/black" />
+        android:background="@color/black"
+        android:scaleType="centerCrop" />
+
 </FrameLayout>

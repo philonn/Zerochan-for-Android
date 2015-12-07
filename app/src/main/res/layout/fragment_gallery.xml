@@ -8,14 +8,13 @@
     <include layout="@layout/view_loading" />
 
     <!-- Grid -->
-    <GridView
-        android:id="@+id/grid"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerGrid"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:drawSelectorOnTop="true"
-        android:listSelector="@drawable/selector_light"
-        android:padding="@dimen/spacing_micro" />
+        android:padding="@dimen/spacing_mini"
+        android:scrollbars="vertical" />
 
     <!-- Error -->
     <include layout="@layout/view_error" />
