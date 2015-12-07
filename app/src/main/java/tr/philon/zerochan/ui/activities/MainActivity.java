@@ -34,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     ActionBar mActionbar;
     Drawer mDrawer;
 
+    int lastSelection;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
                 .withDrawerWidthDp(280)
                 .withToolbar(mToolbar)
                 .withHeader(R.layout.view_drawer_header)
-                .withSelectedItem(ID_EVERYTHING)
                 .addDrawerItems(
                         new PrimaryDrawerItem().withName("Everything").withIdentifier(ID_EVERYTHING)
                                 .withIcon(R.drawable.ic_image).withIconTintingEnabled(true),
@@ -58,10 +59,19 @@ public class MainActivity extends AppCompatActivity {
                         new DividerDrawerItem(),
                         new SecondaryDrawerItem().withName("About").withIdentifier(ID_ABOUT).withSelectable(false))
                 .withOnDrawerItemClickListener(drawerItemClickListener)
-                .withOnDrawerItemLongClickListener(drawerItemLongClickListener)
                 .build();
 
-        replaceFragment(ID_EVERYTHING);
+        if (savedInstanceState != null)
+            lastSelection = savedInstanceState.getInt("lastSelection");
+        if (lastSelection == 0)
+            lastSelection = ID_EVERYTHING;
+        replaceFragment(lastSelection);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("lastSelection", lastSelection);
     }
 
     public void replaceFragment(int id) {
@@ -82,17 +92,15 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
-        setActionbarTitle(title);
+        lastSelection = id;
+        mDrawer.setSelection(id, false);
+        mActionbar.setTitle(title);
+
         bundle.putInt(ARG_SECTION, id);
         fragment.setArguments(bundle);
-
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.main_container, fragment)
                 .commit();
-    }
-
-    public void setActionbarTitle(String title){
-        mActionbar.setTitle(title);
     }
 
     private Drawer.OnDrawerItemClickListener drawerItemClickListener = new Drawer.OnDrawerItemClickListener() {
@@ -100,17 +108,6 @@ public class MainActivity extends AppCompatActivity {
         public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
             int id = drawerItem.getIdentifier();
             if (id <= ID_TAGS) replaceFragment(id);
-            return false;
-        }
-    };
-
-    private Drawer.OnDrawerItemLongClickListener drawerItemLongClickListener = new Drawer.OnDrawerItemLongClickListener() {
-        @Override
-        public boolean onItemLongClick(View view, int position, IDrawerItem drawerItem) {
-            int id = drawerItem.getIdentifier();
-            if (id > ID_TAGS && id != ID_ABOUT) {
-                /* empty */
-            }
             return false;
         }
     };
