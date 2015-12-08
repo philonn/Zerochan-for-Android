@@ -5,11 +5,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
 import tr.philon.zerochan.data.model.GalleryItem;
-import tr.philon.zerochan.data.model.TagItem;
 
 public class SoupUtils {
 
@@ -38,6 +39,44 @@ public class SoupUtils {
             String pageLink = item.select("a").attr("href");
 
             list.add(new GalleryItem(image, pageLink));
+        }
+
+        return list;
+    }
+
+    public static List<String> getImageDetails(String page) {
+        List<String> list = new ArrayList<>();
+        Document doc = Jsoup.parse(page);
+
+        Elements imageDetails = doc.select("div#wrapper div#body div#content div#large p");
+        Elements tags = doc.select("div#wrapper div#body div#menu ul#tags li");
+
+        String uploader = doc.select("div#wrapper div#body div#content p a").text();
+        String all = imageDetails.text();
+        String first = imageDetails.first().text();
+        String third = imageDetails.select("span").text();
+        String second = all.replace(first, "").replace(third, "").replace(" ", "");
+
+        list.add("uploaded by " + uploader);
+        list.add(second + ", " + third);
+
+        for (Element item : tags) {
+            String tagName = item.select("a").text();
+
+            //if tagName is not fully visible, decode it from url
+            if (tagName.substring(tagName.length() - 3, tagName.length()).equals("...")) {
+                tagName = item.select("a").attr("href");
+                tagName = tagName.substring(1, tagName.length());
+
+                try {
+                    tagName = URLDecoder.decode(tagName, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                    tagName = item.select("a").attr("href");
+                }
+            }
+
+            list.add(tagName);
         }
 
         return list;

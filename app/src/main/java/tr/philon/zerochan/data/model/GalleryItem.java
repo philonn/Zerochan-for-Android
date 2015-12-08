@@ -1,5 +1,7 @@
 package tr.philon.zerochan.data.model;
 
+import tr.philon.zerochan.data.Service;
+
 public class GalleryItem {
     private String mImage;
     private String mPageLink;
@@ -15,6 +17,16 @@ public class GalleryItem {
 
     public String getThumbnail() {
         return mImage;
+    }
+
+    public static String getId(String imageUrl) {
+        String s = imageUrl.substring(1, imageUrl.length() - 4);
+        s = s.substring(s.lastIndexOf('.') + 1, s.length());
+        return s;
+    }
+
+    public static String getPageLink(String imageUrl) {
+        return Service.BASE_URL + Service.SLASH + getId(imageUrl);
     }
 
     public static String getFullImage(String thumbnail) {
