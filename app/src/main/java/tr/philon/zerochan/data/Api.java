@@ -6,6 +6,7 @@ public class Api {
     String mTime;
     String mDimen;
     int mPage;
+    boolean hasNextPage;
 
     public Api(){
         mQuery = Service.TAG_EVERYTHING;
@@ -28,12 +29,12 @@ public class Api {
         mQuery = query;
     }
 
-    public void setPage(int page) {
-        mPage = page;
-    }
-
     public int getPage() {
         return mPage;
+    }
+
+    public void setPage(int page) {
+        mPage = page;
     }
 
     public void setSort(String sort, String time) {
@@ -43,5 +44,13 @@ public class Api {
 
     public void setDimen(String dimen) {
         mDimen = dimen;
+    }
+
+    public boolean hasNextPage() {
+        return hasNextPage;
+    }
+
+    public void hasNextPage(boolean boo) {
+        hasNextPage = boo;
     }
 }

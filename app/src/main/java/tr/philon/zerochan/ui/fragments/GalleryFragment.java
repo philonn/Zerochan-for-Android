@@ -33,6 +33,7 @@ import tr.philon.zerochan.ui.activities.DetailsActivity;
 import tr.philon.zerochan.ui.activities.MainActivity;
 import tr.philon.zerochan.ui.activities.SearchActivity;
 import tr.philon.zerochan.ui.adapters.GalleryAdapter;
+import tr.philon.zerochan.ui.widget.EndlessScrollListener;
 import tr.philon.zerochan.ui.widget.GridInsetDecoration;
 import tr.philon.zerochan.util.PixelUtils;
 import tr.philon.zerochan.util.SoupUtils;
@@ -56,7 +57,7 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
         context = getActivity();
 
         int id = getArguments().getInt(MainActivity.ARG_SECTION, 0);
-        switch (id){
+        switch (id) {
             case MainActivity.ID_EVERYTHING:
                 mApi.setQuery(Service.TAG_EVERYTHING);
                 break;
@@ -81,8 +82,20 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
     }
 
     private void setUpRecyclerView() {
-        mRecycler.setLayoutManager(new GridLayoutManager(context, getPossibleColumnsCount()));
-        mRecycler.addItemDecoration(new GridInsetDecoration(PixelUtils.dpToPx(4)));
+        GridLayoutManager layoutManager = new GridLayoutManager(context, getPossibleColumnsCount());
+        GridInsetDecoration decoration = new GridInsetDecoration(PixelUtils.dpToPx(4));
+        EndlessScrollListener listener = new EndlessScrollListener(layoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount) {
+                if (mApi.hasNextPage())
+                    loadPage(mApi.nextPage());
+            }
+        };
+        listener.setVisibleThreshold(getPossibleColumnsCount() + 1);
+
+        mRecycler.setLayoutManager(layoutManager);
+        mRecycler.addItemDecoration(decoration);
+        mRecycler.addOnScrollListener(listener);
     }
 
     private int getPossibleColumnsCount() {
@@ -99,7 +112,9 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
 
 
     public void loadPage(String url) {
-        showView("loading");
+        if (mGridItems == null)
+            showView("loading");
+
         Request request = new Request.Builder().url(url).build();
         Call call = mHttpClient.newCall(request);
 
@@ -130,6 +145,7 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
                             showView("error");
                         } else {
                             displayImages(body);
+                            mApi.hasNextPage(SoupUtils.hasNextPage(body));
                         }
                     }
                 });
@@ -137,10 +153,20 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
         });
     }
 
-    private void displayImages(String response){
-        mGridItems = SoupUtils.exportGalleryItems(response);
-        mAdapter = new GalleryAdapter(this, mGridItems, getColumnWidth(), this);
-        mRecycler.setAdapter(mAdapter);
+    private void displayImages(String response) {
+        if (mGridItems == null) {
+            mGridItems = SoupUtils.exportGalleryItems(response);
+            mAdapter = new GalleryAdapter(this, mGridItems, getColumnWidth(), this);
+            mRecycler.setAdapter(mAdapter);
+        } else {
+            List<GalleryItem> newItems = SoupUtils.exportGalleryItems(response);
+            int count = mAdapter.getItemCount();
+            int newCount = count + newItems.size();
+
+            mGridItems.addAll(newItems);
+            mAdapter.notifyItemRangeInserted(count, newCount);
+        }
+
         showView("grid");
     }
 
