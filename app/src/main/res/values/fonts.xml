@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="text_size_headline">24sp</dimen> <!-- Regular -->
-    <dimen name="text_size_title">20sp</dimen> <!-- Medium -->
-    <dimen name="text_size_subhead">16sp</dimen> <!-- Regular -->
-    <dimen name="text_size_body_two">14sp</dimen> <!-- Medium -->
-    <dimen name="text_size_body">14sp</dimen> <!-- Regular -->
-    <dimen name="text_size_caption">12sp</dimen> <!-- Regular -->
-    <dimen name="text_size_button">14sp</dimen> <!-- Medium -->
+    <dimen name="text_size_headline">24sp</dimen>
+    <!-- Regular -->
+    <dimen name="text_size_title">20sp</dimen>
+    <!-- Medium -->
+    <dimen name="text_size_subhead">16sp</dimen>
+    <!-- Regular -->
+    <dimen name="text_size_body_two">14sp</dimen>
+    <!-- Medium -->
+    <dimen name="text_size_body">14sp</dimen>
+    <!-- Regular -->
+    <dimen name="text_size_caption">12sp</dimen>
+    <!-- Regular -->
+    <dimen name="text_size_button">14sp</dimen>
+    <!-- Medium -->
 
     <style name="Text" />
 
     <style name="Text.Base">
-        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColor">@color/text_primary_white</item>
     </style>
 
     <style name="Text.Base.Headline">
@@ -41,7 +48,7 @@
 
     <style name="Text.Base.Caption">
         <item name="android:textSize">@dimen/text_size_caption</item>
-        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textColor">@color/text_secondary_white</item>
         <item name="android:fontFamily">sans-serif</item>
     </style>
 

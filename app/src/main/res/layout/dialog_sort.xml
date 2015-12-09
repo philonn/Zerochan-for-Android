@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/padding_large"
+    android:paddingRight="@dimen/padding_large"
+    android:paddingTop="@dimen/padding_large">
+
+    <TextView
+        style="@style/Text.Base.Body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/spacing_normal"
+        android:text="@string/order"
+        android:textColor="@color/app_accent" />
+
+    <RadioGroup
+        android:id="@+id/rd_group_order"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/rd_order_recent"
+            style="@style/Text.Base.Subhead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/spacing_normal"
+            android:paddingTop="@dimen/spacing_normal"
+            android:text="@string/order_recent" />
+
+        <RadioButton
+            android:id="@+id/rd_order_popular_week"
+            style="@style/Text.Base.Subhead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/spacing_normal"
+            android:paddingTop="@dimen/spacing_normal"
+            android:text="@string/order_popular_week" />
+
+        <RadioButton
+            android:id="@+id/rd_order_popular_month"
+            style="@style/Text.Base.Subhead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/spacing_normal"
+            android:paddingTop="@dimen/spacing_normal"
+            android:text="@string/order_popular_month" />
+
+        <RadioButton
+            android:id="@+id/rd_order_popular_all"
+            style="@style/Text.Base.Subhead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/spacing_normal"
+            android:paddingTop="@dimen/spacing_normal"
+            android:text="@string/order_popular_all" />
+    </RadioGroup>
+
+    <TextView
+        style="@style/Text.Base.Body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/spacing_normal"
+        android:layout_marginTop="@dimen/spacing_normal"
+        android:text="@string/resolution"
+        android:textColor="@color/app_accent" />
+
+    <RadioGroup
+        android:id="@+id/rd_group_resolution"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/rd_resolution_all"
+            style="@style/Text.Base.Subhead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/spacing_normal"
+            android:paddingTop="@dimen/spacing_normal"
+            android:text="@string/resolution_all" />
+
+        <RadioButton
+            android:id="@+id/rd_resolution_better"
+            style="@style/Text.Base.Subhead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/spacing_normal"
+            android:paddingTop="@dimen/spacing_normal"
+            android:text="@string/resolution_better" />
+
+        <RadioButton
+            android:id="@+id/rd_resolution_large"
+            style="@style/Text.Base.Subhead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/spacing_normal"
+            android:paddingTop="@dimen/spacing_normal"
+            android:text="@string/resolution_large" />
+    </RadioGroup>
+
+</LinearLayout>

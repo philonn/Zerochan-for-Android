@@ -20,27 +20,27 @@ public class Service {
     /* Parameters */
     public final static String PARAM_QUERY = "";
     public final static String PARAM_PAGE = "p=";
-    public final static String PARAM_SORT = "s=";
+    public final static String PARAM_ORDER = "s=";
     public final static String PARAM_TIME = "t=";
-    public final static String PARAM_DIMEN = "t=";
+    public final static String PARAM_DIMEN = "d=";
     /* Values */
-    public final static String SORT_RECENT = "id";
-    public final static String SORT_POPULAR = "fav";
-    public final static String SORT_NAME = "tag";
-    public final static String SORT_COUNT = "count";
+    public final static String ORDER_RECENT = "id";
+    public final static String ORDER_POPULAR = "fav";
+    public final static String ORDER_NAME = "tag";
+    public final static String ORDER_COUNT = "count";
     public final static String TIME_ALL = "0";
     public final static String TIME_LAST_WEEK = "1";
-    public final static String TIME_LAST_THREE_WEEKS = "2";
+    public final static String TIME_LAST_THREE_MONTHS = "2";
     public final static String DIMEN_ALL = "0";
     public final static String DIMEN_LARGE_BETTER = "1";
     public final static String DIMEN_LARGE = "2";
 
-    public static String getUrl(String query, String sort, String time, String dimension, int page) {
+    public static String getUrl(String query, String order, String time, String dimension, int page) {
         if (query.equals(TAG_POPULAR))
             return BASE_URL + TAG_POPULAR;
 
         return BASE_URL + SLASH + query + QMARK +
-                PARAM_SORT + sort + AND +
+                PARAM_ORDER + order + AND +
                 PARAM_TIME + time + AND +
                 PARAM_DIMEN + dimension + AND +
                 PARAM_PAGE + page;

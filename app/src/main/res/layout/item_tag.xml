@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/Text.Base.Body"
     android:id="@+id/item_tag_text"
+    style="@style/Text.Base.Body"
     android:layout_width="250dp"
     android:layout_height="@dimen/default_press_size"
     android:minHeight="@dimen/default_press_size"
     android:minWidth="250dp"
     android:padding="@dimen/padding_normal"
-    android:textColor="@color/text_primary_light"
+    android:textColor="@color/text_primary_white"
     tools:text="Anime" />

@@ -48,8 +48,8 @@
                 android:inputType="text"
                 android:paddingLeft="56dp"
                 android:paddingRight="56dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary" />
+                android:textColor="@color/text_primary_black"
+                android:textColorHint="@color/text_hint_black" />
 
             <ImageButton
                 android:id="@+id/search_clear"

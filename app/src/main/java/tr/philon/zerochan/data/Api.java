@@ -1,23 +1,30 @@
 package tr.philon.zerochan.data;
 
+import tr.philon.zerochan.data.prefs.PrefManager;
+
 public class Api {
     String mQuery;
-    String mSort;
+    String mOrder;
     String mTime;
     String mDimen;
     int mPage;
     boolean hasNextPage;
 
-    public Api(){
+    public Api() {
         mQuery = Service.TAG_EVERYTHING;
-        mSort = Service.SORT_RECENT;
-        mTime = Service.TIME_ALL;
-        mDimen = Service.DIMEN_ALL;
+        mOrder = PrefManager.getInstance().getString(PrefManager.KEY_ORDER);
+        mTime = PrefManager.getInstance().getString(PrefManager.KEY_TIME);
+        mDimen = PrefManager.getInstance().getString(PrefManager.KEY_DIMEN);
         mPage = 1;
+
+        if (mOrder == null && mTime == null && mDimen == null) {
+            setSort(Service.ORDER_RECENT, Service.TIME_ALL);
+            setDimen(Service.DIMEN_ALL);
+        }
     }
 
-    public String getUrl(){
-        return Service.getUrl(mQuery, mSort, mTime, mDimen, mPage);
+    public String getUrl() {
+        return Service.getUrl(mQuery, mOrder, mTime, mDimen, mPage);
     }
 
     public String nextPage() {
@@ -37,13 +44,30 @@ public class Api {
         mPage = page;
     }
 
-    public void setSort(String sort, String time) {
-        mSort = sort;
+    public String getOrder() {
+        return mOrder;
+    }
+
+    public String getTime() {
+        return mTime;
+    }
+
+    public void setSort(String order, String time) {
+        mPage = 1;
+        mOrder = order;
         mTime = time;
+        PrefManager.getInstance().putString(PrefManager.KEY_ORDER, mOrder);
+        PrefManager.getInstance().putString(PrefManager.KEY_TIME, mTime);
+    }
+
+    public String getDimen() {
+        return mDimen;
     }
 
     public void setDimen(String dimen) {
+        mPage = 1;
         mDimen = dimen;
+        PrefManager.getInstance().putString(PrefManager.KEY_DIMEN, mDimen);
     }
 
     public boolean hasNextPage() {

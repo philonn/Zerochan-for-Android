@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Zerochan</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_sort">Sort</string>
 
     <string name="title_search_results">Search results</string>
     <string name="hint_tag_search">Search</string>
@@ -8,6 +8,15 @@
     <string name="loading">Loading</string>
     <string name="download">Download</string>
     <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
 
-    <string name="msg_tag_download">A text file needs to be downloaded in order to use search functionality.</string>
+    <string name="order">Order</string>
+    <string name="order_recent">Recent</string>
+    <string name="order_popular_week">Popular Last Week</string>
+    <string name="order_popular_month">Popular Last 3 Months</string>
+    <string name="order_popular_all">Popular All Time</string>
+    <string name="resolution">Resolution</string>
+    <string name="resolution_all">All Sizes</string>
+    <string name="resolution_better">Large and better</string>
+    <string name="resolution_large">Only very large</string>
 </resources>

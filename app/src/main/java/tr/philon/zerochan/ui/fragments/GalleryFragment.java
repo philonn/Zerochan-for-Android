@@ -8,10 +8,17 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.ViewFlipper;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
@@ -55,6 +62,7 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
         View rootView = inflater.inflate(R.layout.fragment_gallery, container, false);
         ButterKnife.bind(this, rootView);
         context = getActivity();
+        setHasOptionsMenu(true);
 
         int id = getArguments().getInt(MainActivity.ARG_SECTION, 0);
         switch (id) {
@@ -80,6 +88,27 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
 
         return rootView;
     }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_gallery, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.action_sort:
+                showSortDialog();
+                break;
+        }
+
+
+        return super.onOptionsItemSelected(item);
+    }
+
 
     private void setUpRecyclerView() {
         GridLayoutManager layoutManager = new GridLayoutManager(context, getPossibleColumnsCount());
@@ -112,7 +141,7 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
 
 
     public void loadPage(String url) {
-        if (mGridItems == null)
+        if (mGridItems == null || mGridItems.size() == 0)
             showView("loading");
 
         Request request = new Request.Builder().url(url).build();
@@ -184,6 +213,100 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
                 break;
         }
     }
+
+    private void showSortDialog() {
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.dialog_sort, null);
+
+        final RadioGroup rgOrder = (RadioGroup) view.findViewById(R.id.rd_group_order);
+        final RadioButton sortRecent = (RadioButton) view.findViewById(R.id.rd_order_recent);
+        final RadioButton sortPopularWeek = (RadioButton) view.findViewById(R.id.rd_order_popular_week);
+        final RadioButton sortPopularMonth = (RadioButton) view.findViewById(R.id.rd_order_popular_month);
+        final RadioButton sortPopularAll = (RadioButton) view.findViewById(R.id.rd_order_popular_all);
+        final RadioGroup rgDimen = (RadioGroup) view.findViewById(R.id.rd_group_resolution);
+        final RadioButton dimenAll = (RadioButton) view.findViewById(R.id.rd_resolution_all);
+        final RadioButton dimenBetter = (RadioButton) view.findViewById(R.id.rd_resolution_better);
+        final RadioButton dimenLarge = (RadioButton) view.findViewById(R.id.rd_resolution_large);
+
+        if (mApi.getOrder().equals(Service.ORDER_RECENT)) {
+            sortRecent.setChecked(true);
+        } else if (mApi.getOrder().equals(Service.ORDER_POPULAR)) {
+            switch (mApi.getTime()) {
+                case Service.TIME_LAST_WEEK:
+                    sortPopularWeek.setChecked(true);
+                    break;
+                case Service.TIME_LAST_THREE_MONTHS:
+                    sortPopularMonth.setChecked(true);
+                    break;
+                case Service.TIME_ALL:
+                    sortPopularAll.setChecked(true);
+                    break;
+            }
+        }
+
+        switch (mApi.getDimen()) {
+            case Service.DIMEN_ALL:
+                dimenAll.setChecked(true);
+                break;
+            case Service.DIMEN_LARGE_BETTER:
+                dimenBetter.setChecked(true);
+                break;
+            case Service.DIMEN_LARGE:
+                dimenLarge.setChecked(true);
+                break;
+        }
+
+        new MaterialDialog.Builder(context)
+                .customView(view, false)
+                .negativeText(R.string.cancel)
+                .negativeColorRes(R.color.text_secondary_white)
+                .positiveText(R.string.save)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(MaterialDialog materialDialog, DialogAction dialogAction) {
+                        int orderID = rgOrder.getCheckedRadioButtonId();
+                        int dimenID = rgDimen.getCheckedRadioButtonId();
+
+                        switch (orderID) {
+                            case R.id.rd_order_recent:
+                                mApi.setSort(Service.ORDER_RECENT, Service.TIME_ALL);
+                                break;
+                            case R.id.rd_order_popular_week:
+                                mApi.setSort(Service.ORDER_POPULAR, Service.TIME_LAST_WEEK);
+                                break;
+                            case R.id.rd_order_popular_month:
+                                mApi.setSort(Service.ORDER_POPULAR, Service.TIME_LAST_THREE_MONTHS);
+                                break;
+                            case R.id.rd_order_popular_all:
+                                mApi.setSort(Service.ORDER_POPULAR, Service.TIME_ALL);
+                                break;
+                        }
+
+                        switch (dimenID) {
+                            case R.id.rd_resolution_all:
+                                mApi.setDimen(Service.DIMEN_ALL);
+                                break;
+                            case R.id.rd_resolution_better:
+                                mApi.setDimen(Service.DIMEN_LARGE_BETTER);
+                                break;
+                            case R.id.rd_resolution_large:
+                                mApi.setDimen(Service.DIMEN_LARGE);
+                                break;
+                        }
+
+                        notifySortChanged();
+                    }
+                })
+                .show();
+    }
+
+    private void notifySortChanged() {
+        int count = mAdapter.getItemCount();
+        mGridItems.clear();
+        mAdapter.notifyItemRangeRemoved(0, count);
+        loadPage(mApi.getUrl());
+    }
+
 
     @SuppressWarnings("unchecked")
     @Override

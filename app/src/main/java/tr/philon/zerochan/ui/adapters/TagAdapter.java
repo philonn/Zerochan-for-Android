@@ -29,7 +29,7 @@ public class TagAdapter extends ArrayAdapter<SelectableItem> {
         mContext = context;
         mMainList = items;
 
-        colorTextDefault = mContext.getResources().getColor(R.color.text_primary_light);
+        colorTextDefault = mContext.getResources().getColor(R.color.text_primary_white);
         colorTextSelected = mContext.getResources().getColor(R.color.app_accent);
 
         mSelectedItems = new ArrayList<>();
