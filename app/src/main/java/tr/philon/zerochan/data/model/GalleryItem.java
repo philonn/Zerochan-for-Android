@@ -32,6 +32,7 @@ public class GalleryItem {
     public static String getFullImage(String thumbnail) {
         thumbnail = thumbnail.replace(".240.", ".full.");
         thumbnail = thumbnail.replace(".600.", ".full.");
+        thumbnail = thumbnail.replace(thumbnail.substring(0, 9), "http://static");
         return thumbnail;
     }
 
