@@ -51,7 +51,7 @@ public class SoupUtils {
         Elements imageDetails = doc.select("div#wrapper div#body div#content div#large p");
         Elements tags = doc.select("div#wrapper div#body div#menu ul#tags li");
 
-        String uploader = doc.select("div#wrapper div#body div#content p a").text();
+        String uploader = doc.select("div#wrapper div#body div#content p a").first().text();
         String all = imageDetails.text();
         String first = imageDetails.first().text();
         String third = imageDetails.select("span").text();
