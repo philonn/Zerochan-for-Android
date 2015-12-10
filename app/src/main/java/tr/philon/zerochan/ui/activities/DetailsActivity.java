@@ -11,7 +11,6 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -214,10 +213,9 @@ public class DetailsActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         if (!response.isSuccessful()) {
-                            Log.d("details-information", response.message());
                             makeToast(response.message());
                         } else {
-                            onSuccess(body);
+                            onPageLoaded(body);
                         }
                     }
                 });
@@ -225,7 +223,7 @@ public class DetailsActivity extends AppCompatActivity {
         });
     }
 
-    private void onSuccess(String response) {
+    private void onPageLoaded(String response) {
         if (!mLoadingDialog.isShowing()) return;
 
         List<String> details = SoupUtils.getImageDetails(response);
@@ -243,8 +241,7 @@ public class DetailsActivity extends AppCompatActivity {
                 .itemsCallback(new MaterialDialog.ListCallback() {
                     @Override
                     public void onSelection(MaterialDialog materialDialog, View view, int i, CharSequence charSequence) {
-                        if (i == 0)
-                            charSequence = charSequence.subSequence(12, charSequence.length());
+                        if (i == 0) charSequence = charSequence.subSequence(12, charSequence.length());
 
                         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                         clipboard.setPrimaryClip(ClipData.newPlainText("simple text", charSequence));

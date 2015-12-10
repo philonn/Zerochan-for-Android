@@ -2,6 +2,7 @@ package tr.philon.zerochan.ui.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -26,8 +27,6 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.List;
 
 import butterknife.Bind;
@@ -46,23 +45,25 @@ import tr.philon.zerochan.util.PixelUtils;
 import tr.philon.zerochan.util.SoupUtils;
 
 public class GalleryFragment extends Fragment implements GalleryAdapter.ClickListener {
+    @Bind(R.id.recyclerGrid) RecyclerView mRecycler;
+    @Bind(R.id.view_flipper) ViewFlipper mViewFlipper;
+
     Context context;
-    OkHttpClient mHttpClient = new OkHttpClient();
-    Api mApi = new Api();
+    OkHttpClient mHttpClient;
+    Api mApi;
 
     List<GalleryItem> mGridItems;
     GalleryAdapter mAdapter;
-
-    @Bind(R.id.recyclerGrid) RecyclerView mRecycler;
-    @Bind(R.id.view_flipper) ViewFlipper mViewFlipper;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_gallery, container, false);
         ButterKnife.bind(this, rootView);
-        context = getActivity();
         setHasOptionsMenu(true);
+        context = getActivity();
+        mHttpClient = new OkHttpClient();
+        mApi = new Api();
 
         int id = getArguments().getInt(MainActivity.ARG_SECTION, 0);
         switch (id) {
@@ -74,12 +75,7 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
                 break;
             default:
                 String query = getArguments().getString(SearchActivity.ARG_TAGS);
-                try {
-                    query = URLEncoder.encode(query, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                mApi.setQuery(query);
+                mApi.setQuery(Uri.encode(query));
                 break;
         }
 
@@ -200,20 +196,6 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
     }
 
 
-    private void showView(String view) {
-        switch (view) {
-            case "loading":
-                mViewFlipper.setDisplayedChild(0);
-                break;
-            case "grid":
-                mViewFlipper.setDisplayedChild(1);
-                break;
-            case "error":
-                mViewFlipper.setDisplayedChild(2);
-                break;
-        }
-    }
-
     private void showSortDialog() {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.dialog_sort, null);
@@ -307,6 +289,20 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
         loadPage(mApi.getUrl());
     }
 
+
+    private void showView(String view) {
+        switch (view) {
+            case "loading":
+                mViewFlipper.setDisplayedChild(0);
+                break;
+            case "grid":
+                mViewFlipper.setDisplayedChild(1);
+                break;
+            case "error":
+                mViewFlipper.setDisplayedChild(2);
+                break;
+        }
+    }
 
     @SuppressWarnings("unchecked")
     @Override

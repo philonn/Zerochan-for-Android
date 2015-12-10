@@ -229,13 +229,11 @@ public class TagsFragment extends Fragment {
     private View.OnClickListener onFABClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            ArrayList<String> stringArray = new ArrayList<>();
-            for (SelectableItem item : mSelectedTags) {
-                stringArray.add(item.getTitle());
-            }
+            String tags = mSelectedTags.toString();
+            tags = tags.substring(1, tags.length() - 1).replaceAll(", ", ",");
 
             Intent intent = new Intent(mContext, SearchActivity.class);
-            intent.putStringArrayListExtra(SearchActivity.ARG_TAGS, stringArray);
+            intent.putExtra(SearchActivity.ARG_TAGS, tags);
             startActivity(intent);
         }
     };

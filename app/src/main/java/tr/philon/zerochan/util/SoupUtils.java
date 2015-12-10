@@ -15,7 +15,6 @@ import tr.philon.zerochan.data.model.GalleryItem;
 public class SoupUtils {
 
     public static boolean hasNextPage(String page) {
-        List<GalleryItem> list = new ArrayList<>();
         Document doc = Jsoup.parse(page);
         Elements elements = doc.select("div#wrapper div#body div#content p.pagination a");
 
@@ -64,7 +63,7 @@ public class SoupUtils {
             String tagName = item.select("a").text();
 
             //if tagName is not fully visible, decode it from url
-            if (tagName.substring(tagName.length() - 3, tagName.length()).equals("...")) {
+            if (tagName.length() > 5 && tagName.substring(tagName.length() - 3, tagName.length()).equals("...")) {
                 tagName = item.select("a").attr("href");
                 tagName = tagName.substring(1, tagName.length());
 

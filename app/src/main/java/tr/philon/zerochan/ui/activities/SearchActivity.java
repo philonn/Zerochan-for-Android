@@ -5,13 +5,9 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import tr.philon.zerochan.R;
-import tr.philon.zerochan.data.model.TagItem;
 import tr.philon.zerochan.ui.fragments.GalleryFragment;
 
 public class SearchActivity extends AppCompatActivity {
@@ -19,17 +15,20 @@ public class SearchActivity extends AppCompatActivity {
 
     @Bind(R.id.toolbar)
     Toolbar mToolbar;
-    ArrayList<String> mTags;
+    String mTags;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        mTags = getIntent().getStringExtra(ARG_TAGS);
+
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(mTags);
 
-        mTags = getIntent().getStringArrayListExtra(ARG_TAGS);
         initFragment();
     }
 
@@ -43,11 +42,7 @@ public class SearchActivity extends AppCompatActivity {
         Fragment fragment = new GalleryFragment();
         Bundle bundle = new Bundle();
 
-        String tags = mTags.toString();
-        tags = tags
-                .substring(1, tags.length() - 1)
-                .replaceAll(", ", ",");
-        bundle.putString(ARG_TAGS, tags);
+        bundle.putString(ARG_TAGS, mTags);
         fragment.setArguments(bundle);
 
         getSupportFragmentManager().beginTransaction()
