@@ -1,7 +1,5 @@
 package tr.philon.zerochan.data;
 
-import tr.philon.zerochan.data.prefs.PrefManager;
-
 public class Api {
     String mQuery;
     String mOrder;
@@ -12,15 +10,10 @@ public class Api {
 
     public Api() {
         mQuery = Service.TAG_EVERYTHING;
-        mOrder = PrefManager.getInstance().getString(PrefManager.KEY_ORDER);
-        mTime = PrefManager.getInstance().getString(PrefManager.KEY_TIME);
-        mDimen = PrefManager.getInstance().getString(PrefManager.KEY_DIMEN);
+        mOrder = Service.ORDER_RECENT;
+        mTime = Service.TIME_ALL;
+        mDimen = Service.DIMEN_ALL;
         mPage = 1;
-
-        if (mOrder == null && mTime == null && mDimen == null) {
-            setSort(Service.ORDER_RECENT, Service.TIME_ALL);
-            setDimen(Service.DIMEN_ALL);
-        }
     }
 
     public String getUrl() {
@@ -56,8 +49,6 @@ public class Api {
         mPage = 1;
         mOrder = order;
         mTime = time;
-        PrefManager.getInstance().putString(PrefManager.KEY_ORDER, mOrder);
-        PrefManager.getInstance().putString(PrefManager.KEY_TIME, mTime);
     }
 
     public String getDimen() {
@@ -67,7 +58,6 @@ public class Api {
     public void setDimen(String dimen) {
         mPage = 1;
         mDimen = dimen;
-        PrefManager.getInstance().putString(PrefManager.KEY_DIMEN, mDimen);
     }
 
     public boolean hasNextPage() {
