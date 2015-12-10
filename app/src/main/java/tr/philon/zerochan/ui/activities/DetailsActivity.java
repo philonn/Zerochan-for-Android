@@ -2,20 +2,24 @@ package tr.philon.zerochan.ui.activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.ProgressBar;
+import android.view.Window;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.koushikdutta.async.future.Future;
@@ -32,6 +36,7 @@ import java.io.IOException;
 import java.util.List;
 
 import butterknife.Bind;
+import butterknife.BindString;
 import butterknife.ButterKnife;
 import tr.philon.zerochan.R;
 import tr.philon.zerochan.data.model.GalleryItem;
@@ -41,10 +46,12 @@ public class DetailsActivity extends AppCompatActivity {
     public static final String ARG_IMAGE = "arg_image";
 
     @Bind(R.id.details_toolbar) Toolbar mToolbar;
-    @Bind(R.id.progressBar) ProgressBar mProgressBar;
-    @Bind(R.id.details_image) SubsamplingScaleImageView mSSImageView;
+    @Bind(R.id.details_image_thumb) ImageView ivThumb;
+    @Bind(R.id.details_image) SubsamplingScaleImageView ivFull;
+    @BindString(R.string.transition_thumb) String mTransitionName;
 
-    String mImageUrl;
+    String urlThumb;
+    String urlFull;
     File mImageFile;
     File mImageCache;
     File mSavedImage;
@@ -57,13 +64,26 @@ public class DetailsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (Build.VERSION.SDK_INT >= 21) {
+            getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+
+            Transition sharedElement =
+                    TransitionInflater.from(this)
+                            .inflateTransition(R.transition.move_scale_transition);
+            getWindow().setSharedElementEnterTransition(sharedElement);
+            getWindow().setSharedElementExitTransition(sharedElement);
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
         ButterKnife.bind(this);
         setSupportActionBar(mToolbar);
 
-        mImageUrl = GalleryItem.getFullImage(getIntent().getStringExtra(ARG_IMAGE));
-        String fileName = GalleryItem.getFileName(mImageUrl);
+        urlThumb = getIntent().getStringExtra(ARG_IMAGE);
+        urlFull = GalleryItem.getFullImage(urlThumb);
+        showThumbImage();
+
+        String fileName = GalleryItem.getFileName(urlFull);
         String folder = File.separator + "Zerochan" + File.separator;
 
         mImageCache = new File(getExternalCacheDir(), fileName);
@@ -76,7 +96,7 @@ public class DetailsActivity extends AppCompatActivity {
 
         if (!mSavedImage.exists() && !mImageCache.exists())
             downloadImage();
-        else showImage();
+        else showImageDelayed();
     }
 
     @Override
@@ -97,7 +117,7 @@ public class DetailsActivity extends AppCompatActivity {
         }
 
         mIon = Ion.with(DetailsActivity.this)
-                .load(mImageUrl)
+                .load(urlFull)
                 .write(mImageFile)
                 .setCallback(new FutureCallback<File>() {
                     @Override
@@ -117,19 +137,37 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
     private void showImage() {
-        mSSImageView.setImage(ImageSource.uri(mImageFile.getPath()));
-        mProgressBar.setVisibility(View.INVISIBLE);
+        ivFull.setImage(ImageSource.uri(mImageFile.getPath()));
+        ivFull.setVisibility(View.VISIBLE);
+        ivThumb.setVisibility(View.INVISIBLE);
 
-        Animation anim = AnimationUtils.loadAnimation(DetailsActivity.this, R.anim.fade_in);
-        anim.setDuration(800);
-        mSSImageView.startAnimation(anim);
+        if (Build.VERSION.SDK_INT >= 21) {
+            ivThumb.setTransitionName("");
+            ivFull.setTransitionName(mTransitionName);
+        }
+    }
+
+    private void showImageDelayed() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                showImage();
+            }
+        }, 600);
+    }
+
+    private void showThumbImage() {
+        Glide.with(this)
+                .load(urlThumb)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(ivThumb);
     }
 
 
     public void onShare(View view) {
         Intent intent = new Intent(android.content.Intent.ACTION_SEND);
         intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, GalleryItem.getPageLink(mImageUrl));
+        intent.putExtra(Intent.EXTRA_TEXT, GalleryItem.getPageLink(urlFull));
 
         startActivity(Intent.createChooser(intent, "Share image"));
     }
@@ -174,7 +212,7 @@ public class DetailsActivity extends AppCompatActivity {
                 })
                 .show();
 
-        loadPage(GalleryItem.getPageLink(mImageUrl));
+        loadPage(GalleryItem.getPageLink(urlFull));
     }
 
 

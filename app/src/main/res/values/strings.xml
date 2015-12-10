@@ -19,4 +19,6 @@
     <string name="resolution_all">All Sizes</string>
     <string name="resolution_better">Large and better</string>
     <string name="resolution_large">Only very large</string>
+
+    <string name="transition_thumb">transition_thumb</string>
 </resources>

@@ -5,12 +5,21 @@
     android:layout_height="match_parent"
     android:background="@color/black">
 
+    <ImageView
+        android:id="@+id/details_image_thumb"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:transitionName="@string/transition_thumb"
+        android:visibility="visible" />
+
     <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
         android:id="@+id/details_image"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:transitionName=""
+        android:visibility="invisible" />
 
-    <include layout="@layout/view_loading" />
+    <!-- <include layout="@layout/view_loading" /> -->
 
     <LinearLayout
         android:id="@+id/details_buttons_holder"

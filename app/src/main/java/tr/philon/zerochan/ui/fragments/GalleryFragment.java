@@ -1,9 +1,13 @@
 package tr.philon.zerochan.ui.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,6 +34,7 @@ import java.io.IOException;
 import java.util.List;
 
 import butterknife.Bind;
+import butterknife.BindString;
 import butterknife.ButterKnife;
 import tr.philon.zerochan.R;
 import tr.philon.zerochan.data.Service;
@@ -47,6 +52,7 @@ import tr.philon.zerochan.util.SoupUtils;
 public class GalleryFragment extends Fragment implements GalleryAdapter.ClickListener {
     @Bind(R.id.recyclerGrid) RecyclerView mRecycler;
     @Bind(R.id.view_flipper) ViewFlipper mViewFlipper;
+    @BindString(R.string.transition_thumb) String mTransitionName;
 
     Context context;
     OkHttpClient mHttpClient;
@@ -311,6 +317,15 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
 
         Intent intent = new Intent(context, DetailsActivity.class);
         intent.putExtra(DetailsActivity.ARG_IMAGE, mGridItems.get(position).getThumbnail());
-        startActivity(intent);
+
+        ActivityOptionsCompat options =
+                ActivityOptionsCompat.makeSceneTransitionAnimation
+                        (((Activity) context), v, mTransitionName);
+
+        //ActivityCompat.startActivity(((Activity) context), intent, options.toBundle());
+        if (Build.VERSION.SDK_INT >= 16)
+            context.startActivity(intent, options.toBundle());
+        else context.startActivity(intent);
+
     }
 }

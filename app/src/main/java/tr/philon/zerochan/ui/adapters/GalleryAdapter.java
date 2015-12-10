@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
@@ -38,7 +39,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View v = inflater.inflate(R.layout.item_gallery, parent, false);
+        View v = inflater.inflate(R.layout.item_thumb, parent, false);
 
         if (mListener != null) {
             v.setOnClickListener(new View.OnClickListener() {
@@ -80,6 +81,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
         holder.image.setAlpha(f);
         Glide.with(mFragment)
                 .load(mItems.get(position).getThumbnail())
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .centerCrop()
                 .listener(new RequestListener<String, GlideDrawable>() {
                     @Override
@@ -102,8 +104,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        @Bind(R.id.item_gallery_layout) FrameLayout layout;
-        @Bind(R.id.item_gallery_image) ImageView image;
+        @Bind(R.id.item_thumb_layout) FrameLayout layout;
+        @Bind(R.id.item_thumb_image) ImageView image;
 
         public ViewHolder(View v) {
             super(v);

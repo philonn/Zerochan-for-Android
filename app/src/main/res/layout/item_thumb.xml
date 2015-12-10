@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/item_gallery_layout"
+    android:id="@+id/item_thumb_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:foreground="@drawable/selector_light">
 
     <ImageView
-        android:id="@+id/item_gallery_image"
+        android:id="@+id/item_thumb_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/black"
