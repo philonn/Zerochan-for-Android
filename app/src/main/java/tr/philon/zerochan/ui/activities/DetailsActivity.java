@@ -1,8 +1,5 @@
 package tr.philon.zerochan.ui.activities;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -243,9 +240,9 @@ public class DetailsActivity extends AppCompatActivity {
                     public void onSelection(MaterialDialog materialDialog, View view, int i, CharSequence charSequence) {
                         if (i == 0) charSequence = charSequence.subSequence(12, charSequence.length());
 
-                        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                        clipboard.setPrimaryClip(ClipData.newPlainText("simple text", charSequence));
-                        makeToast("'" + charSequence + "'" + " copied to clipboard");
+                        Intent intent = new Intent(DetailsActivity.this, SearchActivity.class);
+                        intent.putExtra(SearchActivity.ARG_TAGS, charSequence);
+                        startActivity(intent);
                     }
                 })
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
