@@ -94,7 +94,7 @@ public class DetailsActivity extends AppCompatActivity {
             mImageFile = mSavedImage;
         else mImageFile = mImageCache;
 
-        if (!mSavedImage.exists() && !mImageCache.exists())
+        if (!mImageCache.exists())
             downloadImage();
         else showImageDelayed();
     }
