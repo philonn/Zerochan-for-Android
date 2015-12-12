@@ -12,4 +12,13 @@
         android:background="@color/black"
         android:scaleType="centerCrop" />
 
+    <ProgressBar
+        android:id="@+id/item_thumb_progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/spacing_normal"
+        android:indeterminate="true"
+        android:visibility="gone" />
+
 </FrameLayout>

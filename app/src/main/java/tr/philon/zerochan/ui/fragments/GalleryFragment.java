@@ -51,6 +51,10 @@ import tr.philon.zerochan.util.PixelUtils;
 import tr.philon.zerochan.util.SoupUtils;
 
 public class GalleryFragment extends Fragment implements GalleryAdapter.ClickListener {
+    private static final int VIEW_LOADING = 0;
+    private static final int VIEW_GRID = 1;
+    private static final int VIEW_ERROR = 2;
+
     @Bind(R.id.view_flipper) ViewFlipper mViewFlipper;
     @Bind(R.id.gallery_recycler) RecyclerView mRecycler;
     @Bind(R.id.gallery_error_button) TextView mErrorBtn;
@@ -60,8 +64,9 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
     OkHttpClient mHttpClient;
     Api mApi;
 
-    List<GalleryItem> mGridItems;
+    List<GalleryItem> mDataset;
     GalleryAdapter mAdapter;
+    boolean isPlaceHolderVisible;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -87,7 +92,7 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
                 break;
         }
 
-        setUpRecyclerView();
+        initRecyclerView();
         initErrorBtn();
         loadPage(mApi.getUrl());
 
@@ -114,7 +119,7 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
     }
 
 
-    private void setUpRecyclerView() {
+    private void initRecyclerView() {
         GridLayoutManager layoutManager = new GridLayoutManager(context, getPossibleColumnsCount());
         GridInsetDecoration decoration = new GridInsetDecoration(PixelUtils.dpToPx(4));
         EndlessScrollListener listener = new EndlessScrollListener(layoutManager) {
@@ -145,8 +150,9 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
 
 
     public void loadPage(String url) {
-        if (mGridItems == null || mGridItems.size() == 0)
-            showView("loading");
+        if (mDataset == null || mDataset.size() == 0)
+            showView(VIEW_LOADING);
+        else showPlaceHolderItem();
 
         Request request = new Request.Builder().url(url).build();
         Call call = mHttpClient.newCall(request);
@@ -160,7 +166,7 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        showView("error");
+                        showView(VIEW_ERROR);
                     }
                 });
             }
@@ -175,7 +181,7 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
                     @Override
                     public void run() {
                         if (!response.isSuccessful()) {
-                            showView("error");
+                            showView(VIEW_ERROR);
                         } else {
                             displayImages(body);
                             mApi.hasNextPage(SoupUtils.hasNextPage(body));
@@ -187,20 +193,37 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
     }
 
     private void displayImages(String response) {
-        if (mGridItems == null) {
-            mGridItems = SoupUtils.exportGalleryItems(response);
-            mAdapter = new GalleryAdapter(this, mGridItems, getColumnWidth(), this);
+        if (mDataset == null) {
+            mDataset = SoupUtils.exportGalleryItems(response);
+            mAdapter = new GalleryAdapter(this, mDataset, getColumnWidth(), this);
             mRecycler.setAdapter(mAdapter);
         } else {
             List<GalleryItem> newItems = SoupUtils.exportGalleryItems(response);
             int count = mAdapter.getItemCount();
             int newCount = count + newItems.size();
 
-            mGridItems.addAll(newItems);
+            hidePlaceHolderItem();
+            mDataset.addAll(newItems);
             mAdapter.notifyItemRangeInserted(count, newCount);
         }
 
-        showView("grid");
+        showView(VIEW_GRID);
+    }
+
+    private void showPlaceHolderItem() {
+        if (isPlaceHolderVisible) return;
+
+        isPlaceHolderVisible = true;
+        mDataset.add(new GalleryItem());
+        mAdapter.notifyItemInserted(mDataset.size());
+    }
+
+    private void hidePlaceHolderItem() {
+        if (!isPlaceHolderVisible) return;
+
+        isPlaceHolderVisible = false;
+        mDataset.remove(mDataset.size() - 1);
+        mAdapter.notifyItemRemoved(mDataset.size());
     }
 
 
@@ -292,33 +315,24 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
 
     private void notifySortChanged() {
         int count = mAdapter.getItemCount();
-        mGridItems.clear();
+        mDataset.clear();
         mAdapter.notifyItemRangeRemoved(0, count);
         loadPage(mApi.getUrl());
     }
 
 
-    private void showView(String view) {
-        switch (view) {
-            case "loading":
-                mViewFlipper.setDisplayedChild(0);
-                break;
-            case "grid":
-                mViewFlipper.setDisplayedChild(1);
-                break;
-            case "error":
-                mViewFlipper.setDisplayedChild(2);
-                break;
-        }
+    private void showView(int view) {
+        mViewFlipper.setDisplayedChild(view);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void onItemClick(View v) {
         int position = mRecycler.getChildAdapterPosition(v);
+        if (isPlaceHolderVisible && mDataset.get(position).isPlaceHolder()) return;
 
         Intent intent = new Intent(context, DetailsActivity.class);
-        intent.putExtra(DetailsActivity.ARG_IMAGE, mGridItems.get(position).getThumbnail());
+        intent.putExtra(DetailsActivity.ARG_IMAGE, mDataset.get(position).getThumbnail());
 
         ActivityOptionsCompat options =
                 ActivityOptionsCompat.makeSceneTransitionAnimation
@@ -331,7 +345,7 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
 
     }
 
-    private void initErrorBtn(){
+    private void initErrorBtn() {
         mErrorBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -25,13 +26,13 @@ import tr.philon.zerochan.data.model.GalleryItem;
 
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
     private Fragment mFragment;
-    private List<GalleryItem> mItems;
+    private List<GalleryItem> mDataset;
     private ClickListener mListener;
     private int mColumnWidth;
 
-    public GalleryAdapter(Fragment fragment, List<GalleryItem> items, int columnWidth, ClickListener listener) {
+    public GalleryAdapter(Fragment fragment, List<GalleryItem> dataset, int columnWidth, ClickListener listener) {
         mFragment = fragment;
-        mItems = items;
+        mDataset = dataset;
         mColumnWidth = columnWidth;
         mListener = listener;
     }
@@ -80,9 +81,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
         holder.image.setAlpha(f);
         Glide.with(mFragment)
-                .load(mItems.get(position).getThumbnail())
+                .load(mDataset.get(position).getThumbnail())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .centerCrop()
+                .crossFade()
                 .listener(new RequestListener<String, GlideDrawable>() {
                     @Override
                     public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
@@ -96,16 +98,21 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                     }
                 })
                 .into(holder.image);
+
+        if (mDataset.get(position).isPlaceHolder())
+            holder.progressBar.setVisibility(View.VISIBLE);
+        else holder.progressBar.setVisibility(View.GONE);
     }
 
     @Override
     public int getItemCount() {
-        return mItems.size();
+        return mDataset.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         @Bind(R.id.item_thumb_layout) FrameLayout layout;
         @Bind(R.id.item_thumb_image) ImageView image;
+        @Bind(R.id.item_thumb_progress_bar) ProgressBar progressBar;
 
         public ViewHolder(View v) {
             super(v);
