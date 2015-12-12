@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -50,8 +51,9 @@ import tr.philon.zerochan.util.PixelUtils;
 import tr.philon.zerochan.util.SoupUtils;
 
 public class GalleryFragment extends Fragment implements GalleryAdapter.ClickListener {
-    @Bind(R.id.recyclerGrid) RecyclerView mRecycler;
     @Bind(R.id.view_flipper) ViewFlipper mViewFlipper;
+    @Bind(R.id.gallery_recycler) RecyclerView mRecycler;
+    @Bind(R.id.gallery_error_button) TextView mErrorBtn;
     @BindString(R.string.transition_thumb) String mTransitionName;
 
     Context context;
@@ -86,6 +88,7 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
         }
 
         setUpRecyclerView();
+        initErrorBtn();
         loadPage(mApi.getUrl());
 
         return rootView;
@@ -106,7 +109,6 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
                 showSortDialog();
                 break;
         }
-
 
         return super.onOptionsItemSelected(item);
     }
@@ -327,5 +329,14 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
             context.startActivity(intent, options.toBundle());
         else context.startActivity(intent);
 
+    }
+
+    private void initErrorBtn(){
+        mErrorBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadPage(mApi.getUrl());
+            }
+        });
     }
 }
