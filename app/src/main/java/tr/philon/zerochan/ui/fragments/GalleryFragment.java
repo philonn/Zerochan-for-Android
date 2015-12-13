@@ -68,6 +68,15 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
     GalleryAdapter mAdapter;
     boolean isPlaceHolderVisible;
 
+    public static GalleryFragment newInstance(String tags) {
+        GalleryFragment fragment = new GalleryFragment();
+        Bundle args = new Bundle();
+
+        args.putString("tags", tags);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -78,19 +87,11 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
         mHttpClient = new OkHttpClient();
         mApi = new Api();
 
-        int id = getArguments().getInt(MainActivity.ARG_SECTION, 0);
-        switch (id) {
-            case MainActivity.ID_EVERYTHING:
-                mApi.setQuery(Service.TAG_EVERYTHING);
-                break;
-            case MainActivity.ID_POPULAR:
-                mApi.setQuery(Service.TAG_POPULAR);
-                break;
-            default:
-                String query = getArguments().getString(SearchActivity.ARG_TAGS);
-                mApi.setQuery(Uri.encode(query));
-                break;
-        }
+        String query = getArguments().getString("tags");
+        if (query != null)
+            query = Uri.encode(query);
+        else query = Service.TAG_EVERYTHING;
+        mApi.setQuery(query);
 
         initRecyclerView();
         initErrorBtn();
@@ -338,10 +339,12 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
                 ActivityOptionsCompat.makeSceneTransitionAnimation
                         (((Activity) context), v, mTransitionName);
 
-        //ActivityCompat.startActivity(((Activity) context), intent, options.toBundle());
+        ActivityCompat.startActivity(((Activity) context), intent, options.toBundle());
+        /*
         if (Build.VERSION.SDK_INT >= 16)
             context.startActivity(intent, options.toBundle());
         else context.startActivity(intent);
+        */
 
     }
 

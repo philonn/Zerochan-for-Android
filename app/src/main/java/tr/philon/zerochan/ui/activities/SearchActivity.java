@@ -1,7 +1,6 @@
 package tr.philon.zerochan.ui.activities;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -26,27 +25,17 @@ public class SearchActivity extends AppCompatActivity {
         mTags = getIntent().getStringExtra(ARG_TAGS);
 
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(mTags);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        initFragment();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.main_container, GalleryFragment.newInstance(mTags))
+                .commit();
     }
 
     @Override
     public boolean onSupportNavigateUp() {
         super.onBackPressed();
         return true;
-    }
-
-    public void initFragment() {
-        Fragment fragment = new GalleryFragment();
-        Bundle bundle = new Bundle();
-
-        bundle.putString(ARG_TAGS, mTags);
-        fragment.setArguments(bundle);
-
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_container, fragment)
-                .commit();
     }
 }
