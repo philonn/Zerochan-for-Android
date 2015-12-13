@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
         android:layout_margin="@dimen/padding_normal"
-        android:src="@drawable/ic_search_white"
+        android:src="@drawable/ic_search_white_24dp"
         fab:fab_colorNormal="@color/app_accent"
         fab:fab_type="normal" />
 

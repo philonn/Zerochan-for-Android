@@ -33,17 +33,17 @@
         <ImageView
             style="@style/Image.Button"
             android:onClick="onShare"
-            android:src="@drawable/ic_share" />
+            android:src="@drawable/ic_share_white_24dp" />
 
         <ImageView
             style="@style/Image.Button"
             android:onClick="onDownload"
-            android:src="@drawable/ic_download" />
+            android:src="@drawable/ic_file_download_white_24dp" />
 
         <ImageView
             style="@style/Image.Button"
             android:onClick="onInformation"
-            android:src="@drawable/ic_info" />
+            android:src="@drawable/ic_info_white_24dp" />
     </LinearLayout>
 
     <android.support.v7.widget.Toolbar
@@ -52,6 +52,6 @@
         android:layout_height="72dp"
         android:background="@drawable/gradient_top"
         android:theme="@style/AppTheme.AppBarOverlay"
-        app:navigationIcon="@drawable/ic_close" />
+        app:navigationIcon="@drawable/ic_close_white_24dp" />
 
 </RelativeLayout>
