@@ -8,6 +8,7 @@ import android.support.v7.widget.Toolbar;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import tr.philon.zerochan.R;
+import tr.philon.zerochan.data.Service;
 import tr.philon.zerochan.ui.fragments.GalleryFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -25,7 +26,8 @@ public class MainActivity extends AppCompatActivity {
         mActionbar = getSupportActionBar();
 
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_container, GalleryFragment.newInstance(null))
+                .replace(R.id.main_container,
+                        GalleryFragment.newInstance(Service.TAG_EVERYTHING))
                 .commit();
     }
 }

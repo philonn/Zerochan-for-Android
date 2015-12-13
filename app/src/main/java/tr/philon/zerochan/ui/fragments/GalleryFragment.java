@@ -86,12 +86,7 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
         context = getActivity();
         mHttpClient = new OkHttpClient();
         mApi = new Api();
-
-        String query = getArguments().getString("tags");
-        if (query != null)
-            query = Uri.encode(query);
-        else query = Service.TAG_EVERYTHING;
-        mApi.setQuery(query);
+        mApi.setQuery(Uri.encode(getArguments().getString("tags")));
 
         initRecyclerView();
         initErrorBtn();
