@@ -8,13 +8,20 @@
     <include layout="@layout/view_loading" />
 
     <!-- Grid -->
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/gallery_recycler"
+    <android.support.design.widget.CoordinatorLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/gallery_coordinator"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:padding="@dimen/spacing_mini"
-        android:scrollbars="vertical" />
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/gallery_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:padding="@dimen/spacing_mini"
+            android:scrollbars="vertical" />
+
+    </android.support.design.widget.CoordinatorLayout>
 
     <!-- Error -->
     <LinearLayout
@@ -38,12 +45,12 @@
             android:textColor="@color/text_secondary_white" />
 
         <TextView
-            android:onClick="onErrorButtonClick"
             android:id="@+id/gallery_error_button"
             style="@style/Text.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_normal"
+            android:onClick="onErrorButtonClick"
             android:text="TRY AGAIN" />
 
     </LinearLayout>

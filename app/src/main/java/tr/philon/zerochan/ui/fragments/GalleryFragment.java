@@ -4,8 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Handler;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
@@ -42,8 +43,6 @@ import tr.philon.zerochan.data.Service;
 import tr.philon.zerochan.data.Api;
 import tr.philon.zerochan.data.model.GalleryItem;
 import tr.philon.zerochan.ui.activities.DetailsActivity;
-import tr.philon.zerochan.ui.activities.MainActivity;
-import tr.philon.zerochan.ui.activities.SearchActivity;
 import tr.philon.zerochan.ui.adapters.GalleryAdapter;
 import tr.philon.zerochan.ui.widget.EndlessScrollListener;
 import tr.philon.zerochan.ui.widget.GridInsetDecoration;
@@ -56,6 +55,7 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
     private static final int VIEW_ERROR = 2;
 
     @Bind(R.id.view_flipper) ViewFlipper mViewFlipper;
+    @Bind(R.id.gallery_coordinator) CoordinatorLayout mCoordinator;
     @Bind(R.id.gallery_recycler) RecyclerView mRecycler;
     @Bind(R.id.gallery_error_button) TextView mErrorBtn;
     @BindString(R.string.transition_thumb) String mTransitionName;
@@ -120,8 +120,8 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
         GridInsetDecoration decoration = new GridInsetDecoration(PixelUtils.dpToPx(4));
         EndlessScrollListener listener = new EndlessScrollListener(layoutManager) {
             @Override
-            public void onLoadMore(int page, int totalItemsCount) {
-                if (mApi.hasNextPage())
+            public void onLoadMore() {
+                if (mApi.hasNextPage() && !isPlaceHolderVisible)
                     loadPage(mApi.nextPage());
             }
         };
@@ -162,7 +162,9 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        showView(VIEW_ERROR);
+                        if (mDataset == null || mDataset.size() == 0)
+                            showView(VIEW_ERROR);
+                        else showErrorSnackBar();
                     }
                 });
             }
@@ -177,7 +179,9 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
                     @Override
                     public void run() {
                         if (!response.isSuccessful()) {
-                            showView(VIEW_ERROR);
+                            if (mDataset == null || mDataset.size() == 0)
+                                showView(VIEW_ERROR);
+                            else showErrorSnackBar();
                         } else {
                             displayImages(body);
                             mApi.hasNextPage(SoupUtils.hasNextPage(body));
@@ -310,15 +314,29 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
     }
 
     private void notifySortChanged() {
-        int count = mAdapter.getItemCount();
-        mDataset.clear();
-        mAdapter.notifyItemRangeRemoved(0, count);
-        loadPage(mApi.getUrl());
+        if (mDataset == null) {
+            loadPage(mApi.getUrl());
+        } else {
+            int count = mAdapter.getItemCount();
+            mDataset.clear();
+            mAdapter.notifyItemRangeRemoved(0, count);
+            loadPage(mApi.getUrl());
+        }
     }
 
 
     private void showView(int view) {
         mViewFlipper.setDisplayedChild(view);
+    }
+
+    private void showErrorSnackBar() {
+        Snackbar.make(mCoordinator, "Unable to load more", Snackbar.LENGTH_INDEFINITE)
+                .setAction("RETRY", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        loadPage(mApi.getUrl());
+                    }
+                }).show();
     }
 
     @SuppressWarnings("unchecked")
@@ -340,7 +358,6 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
             context.startActivity(intent, options.toBundle());
         else context.startActivity(intent);
         */
-
     }
 
     private void initErrorBtn() {
