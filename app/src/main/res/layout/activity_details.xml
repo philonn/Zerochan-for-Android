@@ -9,6 +9,7 @@
         android:id="@+id/details_image_thumb"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:alpha="1"
         android:transitionName="@string/transition_thumb"
         android:visibility="visible" />
 
@@ -16,8 +17,8 @@
         android:id="@+id/details_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:transitionName=""
-        android:visibility="invisible" />
+        android:alpha="0"
+        android:visibility="visible" />
 
     <!-- <include layout="@layout/view_loading" /> -->
 

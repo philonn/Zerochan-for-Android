@@ -350,14 +350,9 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
 
         ActivityOptionsCompat options =
                 ActivityOptionsCompat.makeSceneTransitionAnimation
-                        (((Activity) context), v, mTransitionName);
+                        (((Activity) context), v.findViewById(R.id.item_thumb_image), mTransitionName);
 
         ActivityCompat.startActivity(((Activity) context), intent, options.toBundle());
-        /*
-        if (Build.VERSION.SDK_INT >= 16)
-            context.startActivity(intent, options.toBundle());
-        else context.startActivity(intent);
-        */
     }
 
     private void initErrorBtn() {

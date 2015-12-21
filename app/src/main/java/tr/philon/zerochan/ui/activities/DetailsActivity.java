@@ -1,18 +1,16 @@
 package tr.philon.zerochan.ui.activities;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.transition.Transition;
-import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -36,7 +34,6 @@ import java.io.IOException;
 import java.util.List;
 
 import butterknife.Bind;
-import butterknife.BindString;
 import butterknife.ButterKnife;
 import tr.philon.zerochan.R;
 import tr.philon.zerochan.data.model.GalleryItem;
@@ -48,7 +45,6 @@ public class DetailsActivity extends AppCompatActivity {
     @Bind(R.id.details_toolbar) Toolbar mToolbar;
     @Bind(R.id.details_image_thumb) ImageView ivThumb;
     @Bind(R.id.details_image) SubsamplingScaleImageView ivFull;
-    @BindString(R.string.transition_thumb) String mTransitionName;
 
     String urlThumb;
     String urlFull;
@@ -62,18 +58,13 @@ public class DetailsActivity extends AppCompatActivity {
     MaterialDialog mLoadingDialog;
     Call mInformationCall;
 
+    static final int DELAY_DURATION = 200;
+    static final int FADE_IN_DURATION = 500;
+    static final int FADE_OUT_DURATION = 100;
+    static final int SCALE_DURATION = 150;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
-
-            Transition sharedElement =
-                    TransitionInflater.from(this)
-                            .inflateTransition(R.transition.move_scale_transition);
-            getWindow().setSharedElementEnterTransition(sharedElement);
-            getWindow().setSharedElementExitTransition(sharedElement);
-        }
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
         ButterKnife.bind(this);
@@ -103,6 +94,42 @@ public class DetailsActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         super.onBackPressed();
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!ivFull.isImageLoaded() || ivFull.getVisibility() == View.GONE) {
+            super.onBackPressed();
+        } else {
+            if (ivFull.getScale() == ivFull.getMinScale()) {
+                fadeOutAndExit();
+            } else {
+                ivFull.animateScaleAndCenter(ivFull.getMinScale(), ivFull.getCenter())
+                        .withInterruptible(false)
+                        .withDuration(SCALE_DURATION)
+                        .start();
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        fadeOutAndExit();
+                    }
+                }, SCALE_DURATION);
+            }
+        }
+    }
+
+    private void fadeOutAndExit() {
+        ivFull.animate()
+                .alpha(0f)
+                .setDuration(FADE_OUT_DURATION)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        ivFull.setVisibility(View.GONE);
+                        DetailsActivity.super.onBackPressed();
+                    }
+                });
     }
 
     private void makeToast(String text) {
@@ -138,13 +165,7 @@ public class DetailsActivity extends AppCompatActivity {
 
     private void showImage() {
         ivFull.setImage(ImageSource.uri(mImageFile.getPath()));
-        ivFull.setVisibility(View.VISIBLE);
-        ivThumb.setVisibility(View.INVISIBLE);
-
-        if (Build.VERSION.SDK_INT >= 21) {
-            ivThumb.setTransitionName("");
-            ivFull.setTransitionName(mTransitionName);
-        }
+        ivFull.animate().alpha(1f).setDuration(FADE_IN_DURATION).setListener(null);
     }
 
     private void showImageDelayed() {
@@ -153,7 +174,7 @@ public class DetailsActivity extends AppCompatActivity {
             public void run() {
                 showImage();
             }
-        }, 600);
+        }, DELAY_DURATION);
     }
 
     private void showThumbImage() {
