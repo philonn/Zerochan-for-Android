@@ -133,11 +133,11 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
     }
 
     private int getPossibleColumnsCount() {
-        return PixelUtils.getScreenWidth(context) / PixelUtils.dpToPx(100);
+        return PixelUtils.getScreenWidth() / PixelUtils.dpToPx(100);
     }
 
     private int getColumnWidth() {
-        int screenWidth = PixelUtils.getScreenWidth(context);
+        int screenWidth = PixelUtils.getScreenWidth();
         int columnCount = getPossibleColumnsCount();
         screenWidth = screenWidth - (2 * PixelUtils.dpToPx(2));
 
