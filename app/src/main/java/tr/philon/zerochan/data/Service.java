@@ -10,6 +10,7 @@ package tr.philon.zerochan.data;
  */
 public class Service {
     public final static String BASE_URL = "http://www.zerochan.net";
+    public final static String PATH_USER = "/user";
     public final static String SLASH = "/";
     public final static String QMARK = "?";
     public final static String AND = "&";
@@ -35,11 +36,13 @@ public class Service {
     public final static String DIMEN_LARGE_BETTER = "1";
     public final static String DIMEN_LARGE = "2";
 
-    public static String getUrl(String query, String order, String time, String dimension, int page) {
+    public static String getUrl(boolean isUser, String query, String order, String time, String dimension, int page) {
         if (query.equals(TAG_POPULAR))
             return BASE_URL + TAG_POPULAR;
 
-        return BASE_URL + SLASH + query + QMARK +
+        String pathUser = isUser ? PATH_USER : "";
+        return BASE_URL + pathUser +
+                SLASH + query + QMARK +
                 PARAM_ORDER + order + AND +
                 PARAM_TIME + time + AND +
                 PARAM_DIMEN + dimension + AND +

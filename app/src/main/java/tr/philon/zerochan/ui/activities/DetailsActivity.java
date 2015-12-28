@@ -296,6 +296,7 @@ public class DetailsActivity extends AppCompatActivity {
 
                         Intent intent = new Intent(DetailsActivity.this, SearchActivity.class);
                         intent.putExtra(SearchActivity.ARG_TAGS, charSequence);
+                        intent.putExtra(SearchActivity.ARG_USER, i == 0);
                         startActivity(intent);
                     }
                 })

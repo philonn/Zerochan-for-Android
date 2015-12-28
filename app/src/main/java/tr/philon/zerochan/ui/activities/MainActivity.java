@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.main_container,
-                        GalleryFragment.newInstance(Service.TAG_EVERYTHING))
+                         GalleryFragment.newInstance(Service.TAG_EVERYTHING, false))
                 .commit();
     }
 }

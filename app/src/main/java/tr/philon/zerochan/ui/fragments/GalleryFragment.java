@@ -38,6 +38,7 @@ import tr.philon.zerochan.data.Api;
 import tr.philon.zerochan.data.Service;
 import tr.philon.zerochan.data.model.GalleryItem;
 import tr.philon.zerochan.ui.activities.DetailsActivity;
+import tr.philon.zerochan.ui.activities.SearchActivity;
 import tr.philon.zerochan.ui.adapters.GalleryAdapter;
 import tr.philon.zerochan.ui.widget.EndlessScrollListener;
 import tr.philon.zerochan.ui.widget.GridInsetDecoration;
@@ -62,11 +63,12 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
 
     private Api mApi;
 
-    public static GalleryFragment newInstance(String tags) {
+    public static GalleryFragment newInstance(String tags, boolean isUser) {
         GalleryFragment fragment = new GalleryFragment();
         Bundle args = new Bundle();
 
-        args.putString("tags", tags);
+        args.putString(SearchActivity.ARG_TAGS, tags);
+        args.putBoolean(SearchActivity.ARG_USER, isUser);
         fragment.setArguments(args);
         return fragment;
     }
@@ -79,7 +81,8 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
         setHasOptionsMenu(true);
 
         context = getActivity();
-        mApi = new Api(Uri.encode(getArguments().getString("tags")));
+        mApi = new Api(Uri.encode(getArguments().getString(SearchActivity.ARG_TAGS)),
+                                  getArguments().getBoolean(SearchActivity.ARG_USER));
 
         initRecyclerView();
         initErrorBtn();

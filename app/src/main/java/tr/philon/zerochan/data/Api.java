@@ -1,6 +1,7 @@
 package tr.philon.zerochan.data;
 
 public class Api {
+    boolean isUser;
     String mQuery;
     String mOrder;
     String mTime;
@@ -8,24 +9,17 @@ public class Api {
     int mPage;
     boolean hasNextPage;
 
-    public Api() {
-        mQuery = Service.TAG_EVERYTHING;
-        mOrder = Service.ORDER_RECENT;
-        mTime = Service.TIME_ALL;
-        mDimen = Service.DIMEN_ALL;
-        mPage = 1;
-    }
-
-    public Api(String query) {
-        mQuery = !query.isEmpty() ? query : Service.TAG_EVERYTHING;
-        mOrder = Service.ORDER_RECENT;
-        mTime = Service.TIME_ALL;
-        mDimen = Service.DIMEN_ALL;
-        mPage = 1;
+    public Api(String query, boolean isUser) {
+        this.isUser = isUser;
+        this.mQuery = !query.isEmpty() ? query : Service.TAG_EVERYTHING;
+        this.mOrder = Service.ORDER_RECENT;
+        this.mTime = Service.TIME_ALL;
+        this.mDimen = Service.DIMEN_ALL;
+        this.mPage = 1;
     }
 
     public String getUrl() {
-        return Service.getUrl(mQuery, mOrder, mTime, mDimen, mPage);
+        return Service.getUrl(isUser, mQuery, mOrder, mTime, mDimen, mPage);
     }
 
     public String nextPage() {
@@ -33,16 +27,12 @@ public class Api {
         return getUrl();
     }
 
-    public void setQuery(String query) {
-        mQuery = query;
+    public boolean isUser() {
+        return isUser;
     }
 
-    public int getPage() {
-        return mPage;
-    }
-
-    public void setPage(int page) {
-        mPage = page;
+    public void setIsUser(boolean boo) {
+        this.isUser = boo;
     }
 
     public String getOrder() {
@@ -66,6 +56,14 @@ public class Api {
     public void setDimen(String dimen) {
         mPage = 1;
         mDimen = dimen;
+    }
+
+    public int getPage() {
+        return mPage;
+    }
+
+    public void setPage(int page) {
+        mPage = page;
     }
 
     public boolean hasNextPage() {

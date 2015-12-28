@@ -11,10 +11,10 @@ import tr.philon.zerochan.ui.fragments.GalleryFragment;
 
 public class SearchActivity extends AppCompatActivity {
     public static final String ARG_TAGS = "arg_tags";
+    public static final String ARG_USER = "arg_user";
 
     @Bind(R.id.toolbar)
     Toolbar mToolbar;
-    String mTags;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,14 +22,15 @@ public class SearchActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        mTags = getIntent().getStringExtra(ARG_TAGS);
+        String tags = getIntent().getStringExtra(ARG_TAGS);
+        boolean isUser = getIntent().getBooleanExtra(ARG_USER, false);
 
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setTitle(mTags);
+        getSupportActionBar().setTitle(isUser ? "user : " + tags : tags);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_container, GalleryFragment.newInstance(mTags))
+                .replace(R.id.main_container, GalleryFragment.newInstance(tags, isUser))
                 .commit();
     }
 
