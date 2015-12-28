@@ -36,6 +36,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import tr.philon.zerochan.R;
+import tr.philon.zerochan.data.RequestHandler;
 import tr.philon.zerochan.data.model.GalleryItem;
 import tr.philon.zerochan.util.SoupUtils;
 
@@ -117,6 +118,12 @@ public class DetailsActivity extends AppCompatActivity {
                 }, SCALE_DURATION);
             }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        RequestHandler.getInstance().cancel();
     }
 
     private void fadeOutAndExit() {
@@ -238,40 +245,27 @@ public class DetailsActivity extends AppCompatActivity {
 
 
     private void loadPage(String url) {
-        OkHttpClient mHttpClient = new OkHttpClient();
-        Request request = new Request.Builder().url(url).build();
-        mInformationCall = mHttpClient.newCall(request);
-
-        mInformationCall.enqueue(new Callback() {
-            Handler mainHandler = new Handler(DetailsActivity.this.getMainLooper());
+        RequestHandler.getInstance().load(url, new RequestHandler.Callback() {
+            Handler mainHandler = new Handler(getMainLooper());
 
             @Override
-            public void onFailure(Request request, final IOException e) {
-                e.printStackTrace();
+            public void onSuccess(final String response) {
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        if (mLoadingDialog.isShowing()) {
-                            mLoadingDialog.dismiss();
-                            makeToast(e.getMessage());
-                        }
+                        onPageLoaded(response);
                     }
                 });
             }
 
             @Override
-            public void onResponse(final Response response) throws IOException {
-                final String body;
-                if (response.isSuccessful()) body = response.body().string();
-                else body = "";
-
+            public void onFailure(final String message, final Throwable throwable) {
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        if (!response.isSuccessful()) {
-                            makeToast(response.message());
-                        } else {
-                            onPageLoaded(body);
+                        if (mLoadingDialog.isShowing()) {
+                            mLoadingDialog.dismiss();
+                            makeToast(message);
                         }
                     }
                 });
