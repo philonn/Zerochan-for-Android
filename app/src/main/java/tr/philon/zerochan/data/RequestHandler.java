@@ -34,14 +34,14 @@ public class RequestHandler {
         mCall.enqueue(new com.squareup.okhttp.Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
-                mCallback.onFailure(e.getMessage(), e);
+                mCallback.onFailure(null, e);
             }
 
             @Override
             public void onResponse(final Response response) throws IOException {
                 if (response.isSuccessful())
                     mCallback.onSuccess(response.body().string());
-                else mCallback.onFailure(response.message(), null);
+                else mCallback.onFailure(response, null);
             }
         });
     }
@@ -57,6 +57,6 @@ public class RequestHandler {
 
         void onSuccess(String response);
 
-        void onFailure(String message, Throwable throwable);
+        void onFailure(Response response, Throwable throwable);
     }
 }

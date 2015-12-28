@@ -19,6 +19,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -26,6 +27,7 @@ import android.widget.ViewFlipper;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.squareup.okhttp.Response;
 
 import java.util.List;
 
@@ -53,6 +55,8 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
     @Bind(R.id.view_flipper) ViewFlipper mViewFlipper;
     @Bind(R.id.gallery_coordinator) CoordinatorLayout mCoordinator;
     @Bind(R.id.gallery_recycler) RecyclerView mRecycler;
+    @Bind(R.id.gallery_error_image) ImageView mErrorImage;
+    @Bind(R.id.gallery_error_message) TextView mErrorMessage;
     @Bind(R.id.gallery_error_button) TextView mErrorBtn;
     @BindString(R.string.transition_thumb) String mTransitionName;
 
@@ -82,7 +86,7 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
 
         context = getActivity();
         mApi = new Api(Uri.encode(getArguments().getString(SearchActivity.ARG_TAGS)),
-                                  getArguments().getBoolean(SearchActivity.ARG_USER));
+                getArguments().getBoolean(SearchActivity.ARG_USER));
 
         initRecyclerView();
         initErrorBtn();
@@ -117,22 +121,29 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
     }
 
 
-    public void showLoading() {
+    private void showLoading() {
         mViewFlipper.setDisplayedChild(VIEW_LOADING);
     }
 
-    public void showContent(List<GalleryItem> items) {
+    private void showContent(List<GalleryItem> items) {
         mDataset = items;
         mAdapter = new GalleryAdapter(this, mDataset, getColumnWidth(), this);
         mRecycler.setAdapter(mAdapter);
         mViewFlipper.setDisplayedChild(VIEW_CONTENT);
     }
 
-    public void showError() {
+    private void showError() {
         mViewFlipper.setDisplayedChild(VIEW_ERROR);
     }
 
-    public void showLoadingMore(boolean show) {
+    private void showEmptyView() {
+        mErrorImage.setVisibility(View.GONE);
+        mErrorBtn.setVisibility(View.GONE);
+        mErrorMessage.setText("No results found");
+        mViewFlipper.setDisplayedChild(VIEW_ERROR);
+    }
+
+    private void showLoadingMore(boolean show) {
         if (show) {
             if (isPlaceHolderVisible) return;
 
@@ -148,7 +159,7 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
         }
     }
 
-    public void showLoadingMoreError() {
+    private void showLoadingMoreError() {
         Snackbar.make(mCoordinator, "Unable to load more", Snackbar.LENGTH_INDEFINITE)
                 .setAction("RETRY", new View.OnClickListener() {
                     @Override
@@ -158,7 +169,7 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
                 }).show();
     }
 
-    public void addOlderItems(List<GalleryItem> items) {
+    private void addOlderItems(List<GalleryItem> items) {
         int count = mAdapter.getItemCount();
         int newCount = count + items.size();
 
@@ -205,12 +216,13 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
             }
 
             @Override
-            public void onFailure(String message, Throwable throwable) {
+            public void onFailure(final Response response, Throwable throwable) {
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        if (isFirstPage())
-                            showError();
+                        if (response != null && response.code() == 404)
+                            showEmptyView();
+                        else if (isFirstPage()) showError();
                         else showLoadingMoreError();
                     }
                 });

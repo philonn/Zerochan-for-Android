@@ -259,13 +259,13 @@ public class DetailsActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(final String message, final Throwable throwable) {
+            public void onFailure(final Response response, final Throwable throwable) {
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         if (mLoadingDialog.isShowing()) {
                             mLoadingDialog.dismiss();
-                            makeToast(message);
+                            makeToast(response != null ? response.message() + "" : "No connection");
                         }
                     }
                 });
