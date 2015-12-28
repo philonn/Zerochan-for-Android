@@ -11,6 +11,7 @@ import tr.philon.zerochan.ui.fragments.GalleryFragment;
 
 public class SearchActivity extends AppCompatActivity {
     public static final String ARG_TAGS = "arg_tags";
+    public static final String ARG_IS_SINGLE_TAG = "arg_is_single_tag";
     public static final String ARG_USER = "arg_user";
 
     @Bind(R.id.toolbar)

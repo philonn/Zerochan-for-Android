@@ -13,6 +13,7 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,6 +28,10 @@ import android.widget.ViewFlipper;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.squareup.okhttp.Response;
 
 import java.util.List;
@@ -62,16 +67,20 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
 
     private Context context;
     private List<GalleryItem> mDataset;
+    private List<String> mRelatedTags;
     private GalleryAdapter mAdapter;
+    private Drawer mRelatedTagsDrawer;
     private boolean isPlaceHolderVisible;
 
     private Api mApi;
+
 
     public static GalleryFragment newInstance(String tags, boolean isUser) {
         GalleryFragment fragment = new GalleryFragment();
         Bundle args = new Bundle();
 
         args.putString(SearchActivity.ARG_TAGS, tags);
+        args.putBoolean(SearchActivity.ARG_IS_SINGLE_TAG, !tags.contains(",") && !tags.isEmpty());
         args.putBoolean(SearchActivity.ARG_USER, isUser);
         fragment.setArguments(args);
         return fragment;
@@ -86,6 +95,7 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
 
         context = getActivity();
         mApi = new Api(Uri.encode(getArguments().getString(SearchActivity.ARG_TAGS)),
+                getArguments().getBoolean(SearchActivity.ARG_IS_SINGLE_TAG),
                 getArguments().getBoolean(SearchActivity.ARG_USER));
 
         initRecyclerView();
@@ -102,12 +112,24 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
     }
 
     @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        MenuItem relatedTags = menu.findItem(R.id.action_related_tags_toggle);
+        if (mApi.isSingleTag()) relatedTags.setVisible(true);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
         switch (id) {
             case R.id.action_sort:
                 showSortDialog();
+                break;
+            case R.id.action_related_tags_toggle:
+                if (mRelatedTagsDrawer.isDrawerOpen())
+                    mRelatedTagsDrawer.closeDrawer();
+                else mRelatedTagsDrawer.openDrawer();
                 break;
         }
 
@@ -141,6 +163,38 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
         mErrorBtn.setVisibility(View.GONE);
         mErrorMessage.setText("No results found");
         mViewFlipper.setDisplayedChild(VIEW_ERROR);
+    }
+
+    private void showRelatedTags(final List<String> tags) {
+        mRelatedTagsDrawer = new DrawerBuilder()
+                .withActivity(getActivity())
+                .withDrawerWidthDp(280)
+                .withDrawerGravity(Gravity.END)
+                .withCloseOnClick(false)
+                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                        Intent intent = new Intent(context, SearchActivity.class);
+                        intent.putExtra(SearchActivity.ARG_TAGS, tags.get(position));
+                        startActivity(intent);
+                        return false;
+                    }
+                })
+                .withOnDrawerItemLongClickListener(new Drawer.OnDrawerItemLongClickListener() {
+                    @Override
+                    public boolean onItemLongClick(View view, int position, IDrawerItem drawerItem) {
+                        Intent intent = new Intent(context, SearchActivity.class);
+                        intent.putExtra(SearchActivity.ARG_TAGS, tags.get(position));
+                        intent.putExtra(SearchActivity.ARG_USER, false);
+                        startActivity(intent);
+                        return false;
+                    }
+                })
+                .build();
+
+        for (String tag : tags) {
+            mRelatedTagsDrawer.addItem(new PrimaryDrawerItem().withName(tag).withSelectable(false));
+        }
     }
 
     private void showLoadingMore(boolean show) {
@@ -207,6 +261,11 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
+                        if (mRelatedTags == null && mApi.isSingleTag()) {
+                            mRelatedTags = SoupUtils.getRelatedTags(response, mApi.getQuery());
+                            showRelatedTags(mRelatedTags);
+                        }
+
                         if (isFirstPage())
                             showContent(SoupUtils.exportGalleryItems(response));
                         else addOlderItems(SoupUtils.exportGalleryItems(response));

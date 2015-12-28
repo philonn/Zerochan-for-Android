@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Zerochan</string>
     <string name="action_sort">Sort</string>
+    <string name="action_related_tags_toggle">Related Tags</string>
 
     <string name="title_search_results">Search results</string>
     <string name="hint_tag_search">Search</string>

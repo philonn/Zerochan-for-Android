@@ -1,5 +1,7 @@
 package tr.philon.zerochan.util;
 
+import android.net.Uri;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -38,6 +40,32 @@ public class SoupUtils {
             String pageLink = item.select("a").attr("href");
 
             list.add(new GalleryItem(image, pageLink));
+        }
+
+        return list;
+    }
+
+    public static List<String> getRelatedTags(String page, String tag) {
+        List<String> list = new ArrayList<>();
+        Document doc = Jsoup.parse(page);
+        Elements tags = doc.select("div#wrapper div#body div#menu ul li");
+
+        for (Element item : tags) {
+            String tagName = item.select("a").text();
+            tagName = (tagName == null) ? "" : tagName;
+
+            if (tagName.startsWith(tag)) {
+                tagName = tagName.replace(tag, "");
+                tagName = tag + ", " + tagName;
+            }
+
+            if (tagName.length() > 5 && tagName.substring(tagName.length() - 3, tagName.length()).equals("...")) {
+                tagName = item.select("a").attr("href");
+                tagName = tagName.substring(1, tagName.length());
+                tagName = Uri.decode(tagName);
+            }
+
+            if (!tagName.isEmpty()) list.add(tagName);
         }
 
         return list;

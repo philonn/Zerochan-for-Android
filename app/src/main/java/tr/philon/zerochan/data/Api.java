@@ -1,6 +1,9 @@
 package tr.philon.zerochan.data;
 
+import android.net.Uri;
+
 public class Api {
+    boolean isSingleTag;
     boolean isUser;
     String mQuery;
     String mOrder;
@@ -9,7 +12,8 @@ public class Api {
     int mPage;
     boolean hasNextPage;
 
-    public Api(String query, boolean isUser) {
+    public Api(String query, boolean isSingleTag, boolean isUser) {
+        this.isSingleTag = isSingleTag;
         this.isUser = isUser;
         this.mQuery = !query.isEmpty() ? query : Service.TAG_EVERYTHING;
         this.mOrder = Service.ORDER_RECENT;
@@ -27,12 +31,12 @@ public class Api {
         return getUrl();
     }
 
-    public boolean isUser() {
-        return isUser;
+    public boolean isSingleTag() {
+        return isSingleTag;
     }
 
-    public void setIsUser(boolean boo) {
-        this.isUser = boo;
+    public String getQuery() {
+        return mQuery;
     }
 
     public String getOrder() {

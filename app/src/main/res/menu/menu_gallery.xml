@@ -10,4 +10,12 @@
         android:title="@string/action_sort"
         app:showAsAction="always" />
 
+    <item
+        android:id="@+id/action_related_tags_toggle"
+        android:icon="@drawable/ic_info_white_24dp"
+        android:orderInCategory="10"
+        android:title="@string/action_related_tags_toggle"
+        android:visible="false"
+        app:showAsAction="always" />
+
 </menu>
