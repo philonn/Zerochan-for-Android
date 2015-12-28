@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
@@ -13,7 +14,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -26,21 +26,16 @@ import android.widget.ViewFlipper;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 
-import java.io.IOException;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.BindString;
 import butterknife.ButterKnife;
+import tr.philon.zerochan.data.RequestHandler;
 import tr.philon.zerochan.R;
-import tr.philon.zerochan.data.Service;
 import tr.philon.zerochan.data.Api;
+import tr.philon.zerochan.data.Service;
 import tr.philon.zerochan.data.model.GalleryItem;
 import tr.philon.zerochan.ui.activities.DetailsActivity;
 import tr.philon.zerochan.ui.adapters.GalleryAdapter;
@@ -51,7 +46,7 @@ import tr.philon.zerochan.util.SoupUtils;
 
 public class GalleryFragment extends Fragment implements GalleryAdapter.ClickListener {
     private static final int VIEW_LOADING = 0;
-    private static final int VIEW_GRID = 1;
+    private static final int VIEW_CONTENT = 1;
     private static final int VIEW_ERROR = 2;
 
     @Bind(R.id.view_flipper) ViewFlipper mViewFlipper;
@@ -60,13 +55,12 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
     @Bind(R.id.gallery_error_button) TextView mErrorBtn;
     @BindString(R.string.transition_thumb) String mTransitionName;
 
-    Context context;
-    OkHttpClient mHttpClient;
-    Api mApi;
+    private Context context;
+    private List<GalleryItem> mDataset;
+    private GalleryAdapter mAdapter;
+    private boolean isPlaceHolderVisible;
 
-    List<GalleryItem> mDataset;
-    GalleryAdapter mAdapter;
-    boolean isPlaceHolderVisible;
+    private Api mApi;
 
     public static GalleryFragment newInstance(String tags) {
         GalleryFragment fragment = new GalleryFragment();
@@ -83,10 +77,9 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
         View rootView = inflater.inflate(R.layout.fragment_gallery, container, false);
         ButterKnife.bind(this, rootView);
         setHasOptionsMenu(true);
+
         context = getActivity();
-        mHttpClient = new OkHttpClient();
-        mApi = new Api();
-        mApi.setQuery(Uri.encode(getArguments().getString("tags")));
+        mApi = new Api(Uri.encode(getArguments().getString("tags")));
 
         initRecyclerView();
         initErrorBtn();
@@ -114,116 +107,123 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
         return super.onOptionsItemSelected(item);
     }
 
-
-    private void initRecyclerView() {
-        GridLayoutManager layoutManager = new GridLayoutManager(context, getPossibleColumnsCount());
-        GridInsetDecoration decoration = new GridInsetDecoration(PixelUtils.dpToPx(4));
-        EndlessScrollListener listener = new EndlessScrollListener(layoutManager) {
-            @Override
-            public void onLoadMore() {
-                if (mApi.hasNextPage() && !isPlaceHolderVisible)
-                    loadPage(mApi.nextPage());
-            }
-        };
-        listener.setVisibleThreshold(getPossibleColumnsCount() + 1);
-
-        mRecycler.setLayoutManager(layoutManager);
-        mRecycler.addItemDecoration(decoration);
-        mRecycler.addOnScrollListener(listener);
-    }
-
-    private int getPossibleColumnsCount() {
-        return PixelUtils.getScreenWidth() / PixelUtils.dpToPx(100);
-    }
-
-    private int getColumnWidth() {
-        int screenWidth = PixelUtils.getScreenWidth();
-        int columnCount = getPossibleColumnsCount();
-        screenWidth = screenWidth - (2 * PixelUtils.dpToPx(2));
-
-        return screenWidth / columnCount;
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        RequestHandler.getInstance().cancel();
     }
 
 
-    public void loadPage(String url) {
-        if (mDataset == null || mDataset.size() == 0)
-            showView(VIEW_LOADING);
-        else showPlaceHolderItem();
+    public void showLoading() {
+        mViewFlipper.setDisplayedChild(VIEW_LOADING);
+    }
 
-        Request request = new Request.Builder().url(url).build();
-        Call call = mHttpClient.newCall(request);
+    public void showContent(List<GalleryItem> items) {
+        mDataset = items;
+        mAdapter = new GalleryAdapter(this, mDataset, getColumnWidth(), this);
+        mRecycler.setAdapter(mAdapter);
+        mViewFlipper.setDisplayedChild(VIEW_CONTENT);
+    }
 
-        call.enqueue(new Callback() {
+    public void showError() {
+        mViewFlipper.setDisplayedChild(VIEW_ERROR);
+    }
+
+    public void showLoadingMore(boolean show) {
+        if (show) {
+            if (isPlaceHolderVisible) return;
+
+            isPlaceHolderVisible = true;
+            mDataset.add(new GalleryItem());
+            mAdapter.notifyItemInserted(mDataset.size());
+        } else {
+            if (!isPlaceHolderVisible) return;
+
+            isPlaceHolderVisible = false;
+            mDataset.remove(mDataset.size() - 1);
+            mAdapter.notifyItemRemoved(mDataset.size());
+        }
+    }
+
+    public void showLoadingMoreError() {
+        Snackbar.make(mCoordinator, "Unable to load more", Snackbar.LENGTH_INDEFINITE)
+                .setAction("RETRY", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        loadPage(mApi.getUrl());
+                    }
+                }).show();
+    }
+
+    public void addOlderItems(List<GalleryItem> items) {
+        int count = mAdapter.getItemCount();
+        int newCount = count + items.size();
+
+        showLoadingMore(false);
+        mDataset.addAll(items);
+        mAdapter.notifyItemRangeInserted(count, newCount);
+    }
+
+    @Override
+    public void onItemClick(View v) {
+        int position = mRecycler.getChildAdapterPosition(v);
+        if (isPlaceHolderVisible && mDataset.get(position).isPlaceHolder()) return;
+
+        Intent intent = new Intent(context, DetailsActivity.class);
+        intent.putExtra(DetailsActivity.ARG_IMAGE, mDataset.get(position).getThumbnail());
+
+        ActivityOptionsCompat options =
+                ActivityOptionsCompat.makeSceneTransitionAnimation
+                        (((Activity) context), v.findViewById(R.id.item_thumb_image), mTransitionName);
+
+        ActivityCompat.startActivity(((Activity) context), intent, options.toBundle());
+    }
+
+
+    private void loadPage(String url) {
+        if (isFirstPage())
+            showLoading();
+        else showLoadingMore(true);
+
+        RequestHandler.getInstance().load(url, new RequestHandler.Callback() {
             Handler mainHandler = new Handler(context.getMainLooper());
 
             @Override
-            public void onFailure(Request request, IOException e) {
-                e.printStackTrace();
+            public void onSuccess(final String response) {
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        if (mDataset == null || mDataset.size() == 0)
-                            showView(VIEW_ERROR);
-                        else showErrorSnackBar();
+                        if (isFirstPage())
+                            showContent(SoupUtils.exportGalleryItems(response));
+                        else addOlderItems(SoupUtils.exportGalleryItems(response));
+                        mApi.hasNextPage(SoupUtils.hasNextPage(response));
                     }
                 });
             }
 
             @Override
-            public void onResponse(final Response response) throws IOException {
-                final String body;
-                if (response.isSuccessful()) body = response.body().string();
-                else body = "";
-
+            public void onFailure(String message, Throwable throwable) {
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        if (!response.isSuccessful()) {
-                            if (mDataset == null || mDataset.size() == 0)
-                                showView(VIEW_ERROR);
-                            else showErrorSnackBar();
-                        } else {
-                            displayImages(body);
-                            mApi.hasNextPage(SoupUtils.hasNextPage(body));
-                        }
+                        if (isFirstPage())
+                            showError();
+                        else showLoadingMoreError();
                     }
                 });
             }
         });
     }
 
-    private void displayImages(String response) {
-        if (mDataset == null) {
-            mDataset = SoupUtils.exportGalleryItems(response);
-            mAdapter = new GalleryAdapter(this, mDataset, getColumnWidth(), this);
-            mRecycler.setAdapter(mAdapter);
+    private void refreshPage() {
+        if (isFirstPage()) {
+            loadPage(mApi.getUrl());
         } else {
-            List<GalleryItem> newItems = SoupUtils.exportGalleryItems(response);
             int count = mAdapter.getItemCount();
-            int newCount = count + newItems.size();
-
-            hidePlaceHolderItem();
-            mDataset.addAll(newItems);
-            mAdapter.notifyItemRangeInserted(count, newCount);
+            mDataset.clear();
+            mAdapter.notifyItemRangeRemoved(0, count);
+            loadPage(mApi.getUrl());
         }
-
-        showView(VIEW_GRID);
-    }
-
-    private void showPlaceHolderItem() {
-        if (isPlaceHolderVisible) return;
-
-        isPlaceHolderVisible = true;
-        mDataset.add(new GalleryItem());
-        mAdapter.notifyItemInserted(mDataset.size());
-    }
-
-    private void hidePlaceHolderItem() {
-        if (!isPlaceHolderVisible) return;
-
-        isPlaceHolderVisible = false;
-        mDataset.remove(mDataset.size() - 1);
-        mAdapter.notifyItemRemoved(mDataset.size());
     }
 
 
@@ -307,60 +307,51 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.ClickLis
                                 break;
                         }
 
-                        notifySortChanged();
+                        refreshPage();
                     }
                 })
                 .show();
-    }
-
-    private void notifySortChanged() {
-        if (mDataset == null) {
-            loadPage(mApi.getUrl());
-        } else {
-            int count = mAdapter.getItemCount();
-            mDataset.clear();
-            mAdapter.notifyItemRangeRemoved(0, count);
-            loadPage(mApi.getUrl());
-        }
-    }
-
-
-    private void showView(int view) {
-        mViewFlipper.setDisplayedChild(view);
-    }
-
-    private void showErrorSnackBar() {
-        Snackbar.make(mCoordinator, "Unable to load more", Snackbar.LENGTH_INDEFINITE)
-                .setAction("RETRY", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        loadPage(mApi.getUrl());
-                    }
-                }).show();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void onItemClick(View v) {
-        int position = mRecycler.getChildAdapterPosition(v);
-        if (isPlaceHolderVisible && mDataset.get(position).isPlaceHolder()) return;
-
-        Intent intent = new Intent(context, DetailsActivity.class);
-        intent.putExtra(DetailsActivity.ARG_IMAGE, mDataset.get(position).getThumbnail());
-
-        ActivityOptionsCompat options =
-                ActivityOptionsCompat.makeSceneTransitionAnimation
-                        (((Activity) context), v.findViewById(R.id.item_thumb_image), mTransitionName);
-
-        ActivityCompat.startActivity(((Activity) context), intent, options.toBundle());
     }
 
     private void initErrorBtn() {
         mErrorBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                loadPage(mApi.getUrl());
+                refreshPage();
             }
         });
+    }
+
+    private void initRecyclerView() {
+        GridLayoutManager layoutManager = new GridLayoutManager(context, getPossibleColumnsCount());
+        GridInsetDecoration decoration = new GridInsetDecoration(PixelUtils.dpToPx(4));
+        EndlessScrollListener listener = new EndlessScrollListener(layoutManager) {
+            @Override
+            public void onLoadMore() {
+                if (mApi.hasNextPage() && !isPlaceHolderVisible)
+                    loadPage(mApi.nextPage());
+            }
+        };
+        listener.setVisibleThreshold(getPossibleColumnsCount() + 1);
+
+        mRecycler.setLayoutManager(layoutManager);
+        mRecycler.addItemDecoration(decoration);
+        mRecycler.addOnScrollListener(listener);
+    }
+
+    private int getPossibleColumnsCount() {
+        return PixelUtils.getScreenWidth() / PixelUtils.dpToPx(100);
+    }
+
+    private int getColumnWidth() {
+        int screenWidth = PixelUtils.getScreenWidth();
+        int columnCount = getPossibleColumnsCount();
+        screenWidth = screenWidth - (2 * PixelUtils.dpToPx(2));
+
+        return screenWidth / columnCount;
+    }
+
+    private boolean isFirstPage() {
+        return mDataset == null || mDataset.size() == 0;
     }
 }

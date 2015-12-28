@@ -16,6 +16,14 @@ public class Api {
         mPage = 1;
     }
 
+    public Api(String query) {
+        mQuery = !query.isEmpty() ? query : Service.TAG_EVERYTHING;
+        mOrder = Service.ORDER_RECENT;
+        mTime = Service.TIME_ALL;
+        mDimen = Service.DIMEN_ALL;
+        mPage = 1;
+    }
+
     public String getUrl() {
         return Service.getUrl(mQuery, mOrder, mTime, mDimen, mPage);
     }
