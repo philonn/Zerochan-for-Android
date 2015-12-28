@@ -5,40 +5,30 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 public class PrefManager {
-    public static final String KEY_ORDER = "key_order";
-    public static final String KEY_TIME = "key_time";
-    public static final String KEY_DIMEN = "key_dimen";
-
     private SharedPreferences mPrefs;
-    private SharedPreferences.Editor mPrefEditor;
     private static PrefManager sInstance = null;
 
     protected PrefManager(Context context) {
         mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-        mPrefEditor = mPrefs.edit();
     }
 
     public static void init(Context context) {
         if (sInstance == null) sInstance = new PrefManager(context);
     }
 
-    public static PrefManager getInstance() {
-        return sInstance;
+    public static void putString(String key, String value) {
+        sInstance.mPrefs.edit().putString(key, value).commit();
     }
 
-    public void putString(String key, String value) {
-        mPrefEditor.putString(key, value).commit();
+    public static String getString(String key) {
+        return sInstance.mPrefs.getString(key, null);
     }
 
-    public String getString(String key) {
-        return mPrefs.getString(key, null);
+    public static void putInt(String key, int value) {
+        sInstance.mPrefs.edit().putInt(key, value).commit();
     }
 
-    public void putInt(String key, int value) {
-        mPrefEditor.putInt(key, value).commit();
-    }
-
-    public int getInt(String key) {
-        return mPrefs.getInt(key, 0);
+    public static int getInt(String key) {
+        return sInstance.mPrefs.getInt(key, 0);
     }
 }

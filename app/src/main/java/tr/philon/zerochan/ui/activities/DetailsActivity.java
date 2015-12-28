@@ -291,6 +291,7 @@ public class DetailsActivity extends AppCompatActivity {
                 .itemsCallback(new MaterialDialog.ListCallback() {
                     @Override
                     public void onSelection(MaterialDialog materialDialog, View view, int i, CharSequence charSequence) {
+                        if (i == 1) return;
                         if (i == 0) charSequence = charSequence.subSequence(12, charSequence.length());
 
                         Intent intent = new Intent(DetailsActivity.this, SearchActivity.class);
