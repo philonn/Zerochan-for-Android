@@ -1,4 +1,4 @@
-package tr.philon.zerochan.ui.fragments;
+package tr.philon.zerochan.views.fragments;
 
 import android.content.Context;
 import android.content.Intent;
@@ -34,8 +34,8 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import tr.philon.zerochan.R;
 import tr.philon.zerochan.data.model.SelectableItem;
-import tr.philon.zerochan.ui.activities.SearchActivity;
-import tr.philon.zerochan.ui.adapters.TagAdapter;
+import tr.philon.zerochan.views.activities.SearchActivity;
+import tr.philon.zerochan.views.adapters.TagAdapter;
 
 public class TagsFragment extends Fragment {
     private static final String TAGS_URL = "https://rawgit.com/philonn/Zerochan-Tags/master/tags.txt";

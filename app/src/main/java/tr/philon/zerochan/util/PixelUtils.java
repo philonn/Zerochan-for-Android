@@ -5,7 +5,7 @@ import android.graphics.Point;
 import android.view.Display;
 import android.view.WindowManager;
 
-import tr.philon.zerochan.ui.app.MyApp;
+import tr.philon.zerochan.MyApp;
 
 public class PixelUtils {
 

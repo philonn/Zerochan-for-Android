@@ -1,4 +1,4 @@
-package tr.philon.zerochan.ui.activities;
+package tr.philon.zerochan.views.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -24,13 +24,9 @@ import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.squareup.okhttp.Call;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import butterknife.Bind;

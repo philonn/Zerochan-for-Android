@@ -1,4 +1,4 @@
-package tr.philon.zerochan.ui.adapters;
+package tr.philon.zerochan.views.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;

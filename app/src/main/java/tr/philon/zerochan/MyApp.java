@@ -1,4 +1,4 @@
-package tr.philon.zerochan.ui.app;
+package tr.philon.zerochan;
 
 import android.app.Application;
 import android.content.Context;

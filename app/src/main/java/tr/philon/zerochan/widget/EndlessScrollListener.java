@@ -1,7 +1,6 @@
-package tr.philon.zerochan.ui.widget;
+package tr.philon.zerochan.widget;
 
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 /*

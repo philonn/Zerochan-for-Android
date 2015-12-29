@@ -1,4 +1,4 @@
-package tr.philon.zerochan.ui.fragments;
+package tr.philon.zerochan.views.fragments;
 
 import android.content.Context;
 

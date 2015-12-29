@@ -1,4 +1,4 @@
-package tr.philon.zerochan.ui.fragments;
+package tr.philon.zerochan.views.fragments;
 
 import android.app.Activity;
 import android.content.Context;
@@ -44,11 +44,11 @@ import tr.philon.zerochan.R;
 import tr.philon.zerochan.data.Api;
 import tr.philon.zerochan.data.Service;
 import tr.philon.zerochan.data.model.GalleryItem;
-import tr.philon.zerochan.ui.activities.DetailsActivity;
-import tr.philon.zerochan.ui.activities.SearchActivity;
-import tr.philon.zerochan.ui.adapters.GalleryAdapter;
-import tr.philon.zerochan.ui.widget.EndlessScrollListener;
-import tr.philon.zerochan.ui.widget.GridInsetDecoration;
+import tr.philon.zerochan.views.activities.DetailsActivity;
+import tr.philon.zerochan.views.activities.SearchActivity;
+import tr.philon.zerochan.views.adapters.GalleryAdapter;
+import tr.philon.zerochan.widget.EndlessScrollListener;
+import tr.philon.zerochan.widget.GridInsetDecoration;
 import tr.philon.zerochan.util.PixelUtils;
 import tr.philon.zerochan.util.SoupUtils;
 

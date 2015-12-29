@@ -1,4 +1,4 @@
-package tr.philon.zerochan.ui.adapters;
+package tr.philon.zerochan.views.adapters;
 
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;

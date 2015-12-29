@@ -1,4 +1,4 @@
-package tr.philon.zerochan.ui.widget;
+package tr.philon.zerochan.widget;
 
 /*
  * Copyright 2015 Uwe Trottmann

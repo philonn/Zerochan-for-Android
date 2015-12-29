@@ -1,4 +1,4 @@
-package tr.philon.zerochan.ui.activities;
+package tr.philon.zerochan.views.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -7,7 +7,7 @@ import android.support.v7.widget.Toolbar;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import tr.philon.zerochan.R;
-import tr.philon.zerochan.ui.fragments.GalleryFragment;
+import tr.philon.zerochan.views.fragments.GalleryFragment;
 
 public class SearchActivity extends AppCompatActivity {
     public static final String ARG_TAGS = "arg_tags";
