@@ -7,6 +7,7 @@ import android.support.v7.widget.Toolbar;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import tr.philon.zerochan.R;
+import tr.philon.zerochan.data.Service;
 import tr.philon.zerochan.views.fragments.GalleryFragment;
 
 public class SearchActivity extends AppCompatActivity {
@@ -16,6 +17,7 @@ public class SearchActivity extends AppCompatActivity {
 
     @Bind(R.id.toolbar)
     Toolbar mToolbar;
+    GalleryFragment mFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,8 +32,19 @@ public class SearchActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(isUser ? "user : " + tags : tags);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_container, GalleryFragment.newInstance(tags, isUser))
+        if (savedInstanceState != null) {
+            mFragment = (GalleryFragment) getSupportFragmentManager().findFragmentByTag(GalleryFragment.TAG);
+        } else {
+            mFragment = GalleryFragment.newInstance(tags, isUser);
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(mFragment, GalleryFragment.TAG)
+                    .commit();
+        }
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.main_container, mFragment)
                 .commit();
     }
 

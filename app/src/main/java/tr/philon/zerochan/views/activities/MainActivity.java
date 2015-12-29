@@ -16,6 +16,7 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.toolbar)
     Toolbar mToolbar;
     ActionBar mActionbar;
+    GalleryFragment mFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,9 +26,19 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar);
         mActionbar = getSupportActionBar();
 
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_container,
-                         GalleryFragment.newInstance(Service.TAG_EVERYTHING, false))
+        if (savedInstanceState != null) {
+            mFragment = (GalleryFragment) getSupportFragmentManager().findFragmentByTag(GalleryFragment.TAG);
+        } else {
+            mFragment = GalleryFragment.newInstance(Service.TAG_EVERYTHING, false);
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(mFragment, GalleryFragment.TAG)
+                    .commit();
+        }
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.main_container, mFragment)
                 .commit();
     }
 }

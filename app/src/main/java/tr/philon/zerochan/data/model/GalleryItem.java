@@ -1,11 +1,20 @@
 package tr.philon.zerochan.data.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import tr.philon.zerochan.data.Service;
 
-public class GalleryItem {
+public class GalleryItem implements Parcelable{
     private String mImage;
     private String mPageLink;
     private boolean isPlaceHolder;
+
+    protected GalleryItem(Parcel in) {
+        mImage = in.readString();
+        mPageLink = in.readString();
+        isPlaceHolder = in.readByte() != 0x00;
+    }
 
     public GalleryItem() {
         this.isPlaceHolder = true;
@@ -52,4 +61,29 @@ public class GalleryItem {
         image = image.replace(baseUrl, "");
         return image;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mImage);
+        dest.writeString(mPageLink);
+        dest.writeByte((byte) (isPlaceHolder ? 0x01 : 0x00));
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<GalleryItem> CREATOR = new Parcelable.Creator<GalleryItem>() {
+        @Override
+        public GalleryItem createFromParcel(Parcel in) {
+            return new GalleryItem(in);
+        }
+
+        @Override
+        public GalleryItem[] newArray(int size) {
+            return new GalleryItem[size];
+        }
+    };
 }

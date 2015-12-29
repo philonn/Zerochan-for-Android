@@ -45,8 +45,8 @@ public class SoupUtils {
         return list;
     }
 
-    public static List<String> getRelatedTags(String page, String tag) {
-        List<String> list = new ArrayList<>();
+    public static ArrayList<String> getRelatedTags(String page, String tag) {
+        ArrayList<String> list = new ArrayList<>();
         Document doc = Jsoup.parse(page);
         Elements tags = doc.select("div#wrapper div#body div#menu ul li");
 

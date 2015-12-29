@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -54,13 +55,19 @@ import tr.philon.zerochan.widget.EndlessScrollListener;
 import tr.philon.zerochan.widget.GridInsetDecoration;
 
 public class GalleryFragment extends Fragment {
-    @Bind(R.id.view_flipper) ViewFlipper mViewFlipper;
-    @Bind(R.id.gallery_coordinator) CoordinatorLayout mCoordinator;
-    @Bind(R.id.gallery_recycler) RecyclerView mRecycler;
-    @Bind(R.id.gallery_error_image) ImageView mErrorImage;
-    @Bind(R.id.gallery_error_message) TextView mErrorMessage;
-    @Bind(R.id.gallery_error_button) TextView mErrorBtn;
-    @BindString(R.string.transition_thumb) String mTransitionName;
+    public static final String TAG = "gallery_fragment";
+    private static final String STATE_API = "api";
+    private static final String STATE_DATASET = "dataset";
+    private static final String STATE_RELATED_TAGS = "relatedTags";
+    private static final String STATE_LAYOUT_MANAGER = "layoutManager";
+    private static final String STATE_VIEW = "view";
+
+    private static final int VIEW_STATE_LOADING = 3;
+    private static final int VIEW_STATE_ERROR = 4;
+    private static final int VIEW_STATE_EMPTY = 6;
+    private static final int VIEW_STATE_CONTENT = 5;
+    private static final int VIEW_STATE_LOADING_MORE = 7;
+    private static final int VIEW_STATE_LOADING_MORE_ERROR = 8;
 
     private static final int VIEW_LOADING = 0;
     private static final int VIEW_CONTENT = 1;
@@ -68,12 +75,23 @@ public class GalleryFragment extends Fragment {
 
     private Context mContext;
     private Api mApi;
-    private List<GalleryItem> mDataset;
-    private List<String> mRelatedTags;
+    private ArrayList<GalleryItem> mDataset;
+    private ArrayList<String> mRelatedTags;
     private GalleryAdapter mAdapter;
+    private GridLayoutManager mLayoutManager;
     private Drawer mRelatedTagsDrawer;
 
     private boolean isPlaceHolderVisible;
+    private int mViewState;
+    private Parcelable mLayoutManagerState;
+
+    @Bind(R.id.view_flipper) ViewFlipper mViewFlipper;
+    @Bind(R.id.gallery_coordinator) CoordinatorLayout mCoordinator;
+    @Bind(R.id.gallery_recycler) RecyclerView mRecycler;
+    @Bind(R.id.gallery_error_image) ImageView mErrorImage;
+    @Bind(R.id.gallery_error_message) TextView mErrorMessage;
+    @Bind(R.id.gallery_error_button) TextView mErrorBtn;
+    @BindString(R.string.transition_thumb) String mTransitionName;
 
     public static GalleryFragment newInstance(String tags, boolean isUser) {
         GalleryFragment fragment = new GalleryFragment();
@@ -98,13 +116,35 @@ public class GalleryFragment extends Fragment {
 
 
         ButterKnife.bind(this, rootView);
+        if (null != savedInstanceState)
+            restoreState(savedInstanceState);
+
         initGrid();
         initButtons();
         //initRelatedTagsDrawer();
 
-        loadPage();
-
+        if (savedInstanceState == null)
+            loadPage();
         return rootView;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        saveState(outState);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (null != savedInstanceState)
+            restoreState(savedInstanceState);
+    }
+
+    @Override
+    public void onViewStateRestored(Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        //if (null != savedInstanceState) restoreState(savedInstanceState);
     }
 
     @Override
@@ -250,9 +290,11 @@ public class GalleryFragment extends Fragment {
 
 
     private void initGrid() {
-        GridLayoutManager layoutManager = new GridLayoutManager(mContext, getColumnsCount());
+        mLayoutManager = new GridLayoutManager(mContext, getColumnsCount());
+        if (mLayoutManagerState != null)
+            mLayoutManager.onRestoreInstanceState(mLayoutManagerState);
         GridInsetDecoration decoration = new GridInsetDecoration(PixelUtils.dpToPx(4));
-        EndlessScrollListener listener = new EndlessScrollListener(layoutManager) {
+        EndlessScrollListener listener = new EndlessScrollListener(mLayoutManager) {
             @Override
             public void onLoadMore() {
                 GalleryFragment.this.onLoadMore();
@@ -260,7 +302,8 @@ public class GalleryFragment extends Fragment {
         };
         listener.setVisibleThreshold(getColumnsCount() + 1);
 
-        mDataset = new ArrayList<>();
+        if (mDataset == null)
+            mDataset = new ArrayList<>();
         mAdapter = new GalleryAdapter(this, mDataset, getColumnWidth(), new GalleryAdapter.ClickListener() {
             @Override
             public void onItemClick(View v) {
@@ -268,7 +311,7 @@ public class GalleryFragment extends Fragment {
             }
         });
 
-        mRecycler.setLayoutManager(layoutManager);
+        mRecycler.setLayoutManager(mLayoutManager);
         mRecycler.addItemDecoration(decoration);
         mRecycler.addOnScrollListener(listener);
         mRecycler.setAdapter(mAdapter);
@@ -347,9 +390,13 @@ public class GalleryFragment extends Fragment {
     }
 
     private void loadPage(String url) {
-        if (isFirstPage())
+        if (isFirstPage()) {
             showLoading();
-        else showLoadingMore(true);
+            saveViewState(VIEW_STATE_LOADING);
+        } else {
+            showLoadingMore(true);
+            saveViewState(VIEW_STATE_LOADING_MORE);
+        }
 
         RequestHandler.getInstance().load(url, new RequestHandler.Callback() {
             Handler handler = new Handler(mContext.getMainLooper());
@@ -369,6 +416,8 @@ public class GalleryFragment extends Fragment {
                         showLoadingMore(false);
                         addOlderItems(SoupUtils.exportGalleryItems(response));
                         mApi.hasNextPage(SoupUtils.hasNextPage(response));
+
+                        saveViewState(VIEW_STATE_CONTENT);
                     }
                 });
             }
@@ -378,11 +427,16 @@ public class GalleryFragment extends Fragment {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        if (response != null && response.code() == 404)
+                        if (response != null && response.code() == 404) {
                             showEmpty();
-                        else if (isFirstPage())
+                            saveViewState(VIEW_STATE_EMPTY);
+                        } else if (isFirstPage()) {
                             showError();
-                        else showLoadingMoreError();
+                            saveViewState(VIEW_STATE_ERROR);
+                        } else {
+                            showLoadingMoreError();
+                            saveViewState(VIEW_STATE_LOADING_MORE_ERROR);
+                        }
                     }
                 });
             }
@@ -427,7 +481,8 @@ public class GalleryFragment extends Fragment {
     }
 
     private void onLoadMore(){
-
+        if (mApi.hasNextPage() && !isLoading())
+            loadNextPage();
     }
 
 
@@ -445,5 +500,47 @@ public class GalleryFragment extends Fragment {
 
     private void isLoading(boolean boo) {
         isPlaceHolderVisible = boo;
+    }
+
+
+    private void saveState(Bundle outState){
+        //mContext;
+        outState.putParcelable(STATE_API, mApi);
+        outState.putParcelableArrayList(STATE_DATASET, mDataset);
+        outState.putStringArrayList(STATE_RELATED_TAGS, mRelatedTags);
+        outState.putParcelable(STATE_LAYOUT_MANAGER, mLayoutManager.onSaveInstanceState());
+        //mRelatedTagsDrawer
+        //isPlaceHolderVisible
+        outState.putInt(STATE_VIEW, mViewState);
+    }
+
+    private void saveViewState(int state){
+        mViewState = state;
+    }
+
+    private void restoreState(Bundle savedState){
+        mApi = savedState.getParcelable(STATE_API);
+        mDataset = savedState.getParcelableArrayList(STATE_DATASET);
+        mRelatedTags = savedState.getStringArrayList(STATE_RELATED_TAGS);
+        mLayoutManagerState = savedState.getParcelable(STATE_LAYOUT_MANAGER);
+        mViewState = savedState.getInt(STATE_VIEW);
+
+        switch (mViewState){
+            case VIEW_STATE_LOADING: showLoading(); break;
+            case VIEW_STATE_ERROR: showError(); break;
+            case VIEW_STATE_EMPTY: showEmpty(); break;
+            case VIEW_STATE_CONTENT: showContent(); break;
+            case VIEW_STATE_LOADING_MORE: showContent(); break;
+            case VIEW_STATE_LOADING_MORE_ERROR: showLoadingMoreError(); break;
+        }
+
+        if (!mDataset.isEmpty())
+            isPlaceHolderVisible = mDataset.get(mDataset.size() - 1).isPlaceHolder();
+        if (mViewState == VIEW_STATE_LOADING_MORE && isPlaceHolderVisible)
+            retryLoadMore();
+
+
+        if (mRelatedTags != null)
+            initRelatedTagsDrawer();
     }
 }

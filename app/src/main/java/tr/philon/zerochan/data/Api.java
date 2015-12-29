@@ -1,8 +1,9 @@
 package tr.philon.zerochan.data;
 
-import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class Api {
+public class Api implements Parcelable{
     boolean isSingleTag;
     boolean isUser;
     String mQuery;
@@ -11,6 +12,17 @@ public class Api {
     String mDimen;
     int mPage;
     boolean hasNextPage;
+
+    protected Api(Parcel in) {
+        isSingleTag = in.readByte() != 0x00;
+        isUser = in.readByte() != 0x00;
+        mQuery = in.readString();
+        mOrder = in.readString();
+        mTime = in.readString();
+        mDimen = in.readString();
+        mPage = in.readInt();
+        hasNextPage = in.readByte() != 0x00;
+    }
 
     public Api(String query, boolean isSingleTag, boolean isUser) {
         this.isSingleTag = isSingleTag;
@@ -77,4 +89,35 @@ public class Api {
     public void hasNextPage(boolean boo) {
         hasNextPage = boo;
     }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeByte((byte) (isSingleTag ? 0x01 : 0x00));
+        dest.writeByte((byte) (isUser ? 0x01 : 0x00));
+        dest.writeString(mQuery);
+        dest.writeString(mOrder);
+        dest.writeString(mTime);
+        dest.writeString(mDimen);
+        dest.writeInt(mPage);
+        dest.writeByte((byte) (hasNextPage ? 0x01 : 0x00));
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<Api> CREATOR = new Parcelable.Creator<Api>() {
+        @Override
+        public Api createFromParcel(Parcel in) {
+            return new Api(in);
+        }
+
+        @Override
+        public Api[] newArray(int size) {
+            return new Api[size];
+        }
+    };
 }
