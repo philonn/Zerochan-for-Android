@@ -2,6 +2,7 @@ package tr.philon.zerochan.views.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -59,6 +60,12 @@ public class DetailsActivity extends AppCompatActivity {
     static final int FADE_IN_DURATION = 500;
     static final int FADE_OUT_DURATION = 100;
     static final int SCALE_DURATION = 150;
+
+    public static Intent newInstance(Context context, String imageUrl){
+        Intent intent = new Intent(context, DetailsActivity.class);
+        intent.putExtra(DetailsActivity.ARG_IMAGE, imageUrl);
+        return intent;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -290,10 +297,10 @@ public class DetailsActivity extends AppCompatActivity {
                         if (i == 1) return;
                         if (i == 0) charSequence = charSequence.subSequence(12, charSequence.length());
 
-                        Intent intent = new Intent(DetailsActivity.this, SearchActivity.class);
-                        intent.putExtra(SearchActivity.ARG_TAGS, charSequence);
-                        intent.putExtra(SearchActivity.ARG_USER, i == 0);
-                        startActivity(intent);
+                        startActivity(SearchActivity.newInstance(
+                                DetailsActivity.this,
+                                charSequence.toString(),
+                                i == 0));
                     }
                 })
                 .onPositive(new MaterialDialog.SingleButtonCallback() {

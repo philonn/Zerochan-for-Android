@@ -368,8 +368,7 @@ public class GalleryFragment extends Fragment {
         int position = mRecycler.getChildAdapterPosition(v);
         if (isPlaceHolderVisible && mDataset.get(position).isPlaceHolder()) return;
 
-        Intent intent = new Intent(mContext, DetailsActivity.class);
-        intent.putExtra(DetailsActivity.ARG_IMAGE, mDataset.get(position).getThumbnail());
+        Intent intent = DetailsActivity.newInstance(mContext, mDataset.get(position).getThumbnail());
 
         ActivityOptionsCompat options =
                 ActivityOptionsCompat.makeSceneTransitionAnimation
@@ -379,10 +378,7 @@ public class GalleryFragment extends Fragment {
     }
 
     private void onRelatedTagsDrawerItemClick(int position) {
-        Intent intent = new Intent(mContext, SearchActivity.class);
-        intent.putExtra(SearchActivity.ARG_TAGS, mRelatedTags.get(position));
-        intent.putExtra(SearchActivity.ARG_USER, false);
-        startActivity(intent);
+        startActivity(SearchActivity.newInstance(mContext, mRelatedTags.get(position)));
     }
 
     //Presenter

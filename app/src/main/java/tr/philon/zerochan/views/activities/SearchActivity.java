@@ -1,5 +1,7 @@
 package tr.philon.zerochan.views.activities;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -18,6 +20,17 @@ public class SearchActivity extends AppCompatActivity {
     @Bind(R.id.toolbar)
     Toolbar mToolbar;
     GalleryFragment mFragment;
+
+    public static Intent newInstance(Context context, String tags){
+        return newInstance(context, tags, false);
+    }
+
+    public static Intent newInstance(Context context, String tags, boolean isUser){
+        Intent intent = new Intent(context, SearchActivity.class);
+        intent.putExtra(SearchActivity.ARG_TAGS, tags);
+        intent.putExtra(SearchActivity.ARG_USER, isUser);
+        return intent;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
