@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -21,6 +20,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -50,7 +50,6 @@ import tr.philon.zerochan.util.PixelUtils;
 import tr.philon.zerochan.util.SoupUtils;
 import tr.philon.zerochan.views.activities.DetailsActivity;
 import tr.philon.zerochan.views.activities.SearchActivity;
-import tr.philon.zerochan.views.activities.TagsActivity;
 import tr.philon.zerochan.views.adapters.GalleryAdapter;
 import tr.philon.zerochan.widget.EndlessScrollListener;
 import tr.philon.zerochan.widget.GridInsetDecoration;
@@ -71,8 +70,8 @@ public class GalleryFragment extends Fragment {
     private static final int VIEW_STATE_LOADING_MORE_ERROR = 8;
 
     private static final int VIEW_LOADING = 0;
-    private static final int VIEW_CONTENT = 1;
-    private static final int VIEW_ERROR = 2;
+    private static final int VIEW_ERROR = 1;
+    private static final int VIEW_CONTENT = 2;
 
     private Context mContext;
     private Api mApi;
@@ -87,11 +86,11 @@ public class GalleryFragment extends Fragment {
     private Parcelable mLayoutManagerState;
 
     @Bind(R.id.view_flipper) ViewFlipper mViewFlipper;
-    @Bind(R.id.gallery_coordinator) CoordinatorLayout mCoordinator;
+    @Bind(R.id.gallery_recycler_container) FrameLayout mRecyclerContainer;
     @Bind(R.id.gallery_recycler) RecyclerView mRecycler;
-    @Bind(R.id.gallery_error_image) ImageView mErrorImage;
-    @Bind(R.id.gallery_error_message) TextView mErrorMessage;
-    @Bind(R.id.gallery_error_button) TextView mErrorBtn;
+    @Bind(R.id.error_image) ImageView mErrorImage;
+    @Bind(R.id.error_message) TextView mErrorMessage;
+    @Bind(R.id.error_button) TextView mErrorBtn;
     @BindString(R.string.transition_thumb) String mTransitionName;
 
     public static GalleryFragment newInstance(String tags, boolean isUser) {
@@ -273,7 +272,7 @@ public class GalleryFragment extends Fragment {
     }
 
     private void showLoadingMoreError() {
-        Snackbar.make(mCoordinator, "Unable to load more", Snackbar.LENGTH_INDEFINITE)
+        Snackbar.make(mRecyclerContainer, "Unable to load more", Snackbar.LENGTH_INDEFINITE)
                 .setAction("RETRY", new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

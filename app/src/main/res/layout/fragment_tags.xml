@@ -1,44 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:fab="http://schemas.android.com/apk/res-auto"
+<ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/view_flipper"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <GridView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/tags_grid"
+    <!-- Loading -->
+    <include layout="@layout/view_loading" />
+
+    <!-- Grid -->
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/tags_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:columnWidth="250dp"
-        android:drawSelectorOnTop="true"
-        android:fadingEdge="none"
-        android:fastScrollEnabled="true"
-        android:horizontalSpacing="1dp"
-        android:listSelector="@drawable/selector_light"
-        android:numColumns="auto_fit"
-        android:paddingBottom="@dimen/padding_normal"
-        android:paddingLeft="@dimen/padding_normal"
-        android:paddingRight="@dimen/padding_normal"
-        android:paddingTop="80dp"
-        android:scrollbarStyle="outsideOverlay"
-        android:stretchMode="columnWidth"
-        android:verticalSpacing="1dp" />
+        android:padding="@dimen/padding_normal" />
 
-    <com.melnykov.fab.FloatingActionButton
-        android:id="@+id/tags_fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
-        android:layout_margin="@dimen/padding_normal"
-        android:src="@drawable/ic_search_white_24dp"
-        fab:fab_colorNormal="@color/app_accent"
-        fab:fab_type="normal" />
-
-    <View
+    <!-- Error -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/padding_normal"
-        android:background="@color/background_dark" />
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
 
-    <include layout="@layout/view_search_bar" />
+        <ImageView
+            android:id="@+id/tags_error_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/frown_cloud_grey800" />
 
-</FrameLayout>
+        <TextView
+            android:id="@+id/tags_error_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="No connection"
+            android:textColor="@color/text_secondary_white" />
+
+        <TextView
+            android:id="@+id/tags_error_button"
+            style="@style/Text.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_normal"
+            android:text="TRY AGAIN" />
+
+    </LinearLayout>
+
+</ViewFlipper>
