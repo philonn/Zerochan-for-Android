@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/view_flipper"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Loading -->
     <include layout="@layout/view_loading" />
 
+    <include layout="@layout/view_error" />
+
     <!-- Grid -->
-    <android.support.design.widget.CoordinatorLayout xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/gallery_coordinator"
+    <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/gallery_recycler_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -21,38 +23,15 @@
             android:padding="@dimen/spacing_mini"
             android:scrollbars="vertical" />
 
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/gallery_tags_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:layout_margin="@dimen/fab_margin"
+            android:src="@drawable/ic_style_white_24dp"
+            app:layout_behavior="tr.philon.zerochan.widget.ScrollAwareFABBehavior" />
+
     </android.support.design.widget.CoordinatorLayout>
-
-    <!-- Error -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical">
-
-        <ImageView
-            android:id="@+id/gallery_error_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/frown_cloud_grey800" />
-
-        <TextView
-            android:id="@+id/gallery_error_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="No connection"
-            android:textColor="@color/text_secondary_white" />
-
-        <TextView
-            android:id="@+id/gallery_error_button"
-            style="@style/Text.Borderless"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_normal"
-            android:onClick="onErrorButtonClick"
-            android:text="TRY AGAIN" />
-
-    </LinearLayout>
 
 </ViewFlipper>

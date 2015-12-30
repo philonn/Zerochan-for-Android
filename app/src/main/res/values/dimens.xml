@@ -5,6 +5,7 @@
     <dimen name="search_bar_vertical_margin">16dp</dimen>
     <dimen name="default_press_size">48dp</dimen>
     <dimen name="drawer_header_height">104dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
 
     <dimen name="spacing_micro">2dp</dimen>
     <dimen name="spacing_mini">4dp</dimen>

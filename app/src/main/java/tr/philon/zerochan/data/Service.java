@@ -48,4 +48,8 @@ public class Service {
                 PARAM_DIMEN + dimension + AND +
                 PARAM_PAGE + page;
     }
+
+    public static String getHomePage() {
+        return BASE_URL;
+    }
 }

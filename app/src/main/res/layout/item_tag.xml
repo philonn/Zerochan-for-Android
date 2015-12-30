@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/item_tag_text"
-    style="@style/Text.Base.Body"
-    android:layout_width="250dp"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="@dimen/default_press_size"
-    android:minHeight="@dimen/default_press_size"
-    android:minWidth="250dp"
-    android:padding="@dimen/padding_normal"
-    android:textColor="@color/text_primary_white"
-    tools:text="Anime" />
+    android:foreground="@drawable/selector_light">
+
+    <TextView
+        android:id="@+id/item_tag_text"
+        style="@style/Text.Base.Body"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:ellipsize="marquee"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/padding_normal"
+        android:paddingRight="@dimen/padding_normal"
+        android:singleLine="true"
+        android:textColor="@color/text_primary_white" />
+</FrameLayout>

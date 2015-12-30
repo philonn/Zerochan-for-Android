@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -50,6 +52,7 @@ import tr.philon.zerochan.util.PixelUtils;
 import tr.philon.zerochan.util.SoupUtils;
 import tr.philon.zerochan.views.activities.DetailsActivity;
 import tr.philon.zerochan.views.activities.SearchActivity;
+import tr.philon.zerochan.views.activities.TagsActivity;
 import tr.philon.zerochan.views.adapters.GalleryAdapter;
 import tr.philon.zerochan.widget.EndlessScrollListener;
 import tr.philon.zerochan.widget.GridInsetDecoration;
@@ -74,32 +77,42 @@ public class GalleryFragment extends Fragment {
     private static final int VIEW_CONTENT = 2;
 
     private Context mContext;
-    private Api mApi;
     private ArrayList<GalleryItem> mDataset;
     private ArrayList<String> mRelatedTags;
     private GalleryAdapter mAdapter;
     private GridLayoutManager mLayoutManager;
-    private Drawer mRelatedTagsDrawer;
-
-    private boolean isPlaceHolderVisible;
-    private int mViewState;
     private Parcelable mLayoutManagerState;
+    private Drawer mRelatedTagsDrawer;
+    private Snackbar mSnackbar;
+    private int mSnackbarHeight;
+    private int mViewState;
+
+    private Api mApi;
+    private boolean isMainPage;
+    private boolean isPlaceHolderVisible;
+
 
     @Bind(R.id.view_flipper) ViewFlipper mViewFlipper;
-    @Bind(R.id.gallery_recycler_container) FrameLayout mRecyclerContainer;
+    @Bind(R.id.gallery_recycler_container) CoordinatorLayout mRecyclerContainer;
     @Bind(R.id.gallery_recycler) RecyclerView mRecycler;
+    @Bind(R.id.gallery_tags_fab) FloatingActionButton mFAB;
     @Bind(R.id.error_image) ImageView mErrorImage;
     @Bind(R.id.error_message) TextView mErrorMessage;
     @Bind(R.id.error_button) TextView mErrorBtn;
     @BindString(R.string.transition_thumb) String mTransitionName;
 
     public static GalleryFragment newInstance(String tags, boolean isUser) {
+        return newInstance(tags, isUser, false);
+    }
+
+    public static GalleryFragment newInstance(String tags, boolean isUser, boolean isMainPage) {
         GalleryFragment fragment = new GalleryFragment();
         Bundle args = new Bundle();
 
         args.putString(SearchActivity.ARG_TAGS, tags);
         args.putBoolean(SearchActivity.ARG_IS_SINGLE_TAG, !tags.contains(",") && !tags.isEmpty());
         args.putBoolean(SearchActivity.ARG_USER, isUser);
+        args.putBoolean(SearchActivity.ARG_MAIN_PAGE, isMainPage);
         fragment.setArguments(args);
         return fragment;
     }
@@ -113,6 +126,8 @@ public class GalleryFragment extends Fragment {
         mApi = new Api(Uri.encode(getArguments().getString(SearchActivity.ARG_TAGS)),
                 getArguments().getBoolean(SearchActivity.ARG_IS_SINGLE_TAG),
                 getArguments().getBoolean(SearchActivity.ARG_USER));
+
+        isMainPage = getArguments().getBoolean(SearchActivity.ARG_MAIN_PAGE);
 
 
         ButterKnife.bind(this, rootView);
@@ -272,13 +287,28 @@ public class GalleryFragment extends Fragment {
     }
 
     private void showLoadingMoreError() {
-        Snackbar.make(mRecyclerContainer, "Unable to load more", Snackbar.LENGTH_INDEFINITE)
+        mSnackbar = Snackbar.make(mRecyclerContainer, "Unable to load more", Snackbar.LENGTH_INDEFINITE)
                 .setAction("RETRY", new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         retryLoadMore();
                     }
-                }).show();
+                });
+        mSnackbar.show();
+        mSnackbar.setCallback(new Snackbar.Callback() {
+            @Override
+            public void onShown(Snackbar snackbar) {
+                super.onShown(snackbar);
+                makeSnackbarUnDismissible();
+                updateFABPosition();
+            }
+
+            @Override
+            public void onDismissed(Snackbar snackbar, int event) {
+                super.onDismissed(snackbar, event);
+                updateFABPosition();
+            }
+        });
     }
 
     private void addOlderItems(List<GalleryItem> items) {
@@ -308,7 +338,7 @@ public class GalleryFragment extends Fragment {
         mAdapter = new GalleryAdapter(this, mDataset, getColumnWidth(), new GalleryAdapter.ClickListener() {
             @Override
             public void onItemClick(View v) {
-                onImageClick(v);
+                onClickImage(v);
             }
         });
 
@@ -319,10 +349,18 @@ public class GalleryFragment extends Fragment {
     }
 
     private void initButtons() {
+        if (!isMainPage)
+            mFAB.setVisibility(View.INVISIBLE);
+        mFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickFAB();
+            }
+        });
         mErrorBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onErrorBtnClick();
+                onClickErrorBtn();
             }
         });
     }
@@ -336,7 +374,7 @@ public class GalleryFragment extends Fragment {
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                        onRelatedTagsDrawerItemClick(position);
+                        onClickRelatedTagsDrawerItem(position);
                         return false;
                     }
                 })
@@ -359,11 +397,11 @@ public class GalleryFragment extends Fragment {
     }
 
 
-    private void onErrorBtnClick() {
+    private void onClickErrorBtn() {
         retryLoadMore();
     }
 
-    private void onImageClick(View v) {
+    private void onClickImage(View v) {
         int position = mRecycler.getChildAdapterPosition(v);
         if (isPlaceHolderVisible && mDataset.get(position).isPlaceHolder()) return;
 
@@ -376,8 +414,12 @@ public class GalleryFragment extends Fragment {
         ActivityCompat.startActivity(((Activity) mContext), intent, options.toBundle());
     }
 
-    private void onRelatedTagsDrawerItemClick(int position) {
+    private void onClickRelatedTagsDrawerItem(int position) {
         startActivity(SearchActivity.newInstance(mContext, mRelatedTags.get(position)));
+    }
+
+    private void onClickFAB(){
+        startActivity(TagsActivity.newInstance(mContext));
     }
 
     //Presenter
@@ -497,6 +539,21 @@ public class GalleryFragment extends Fragment {
 
     private void isLoading(boolean boo) {
         isPlaceHolderVisible = boo;
+    }
+
+
+    private void updateFABPosition(){
+        if (!isMainPage && mFAB.getVisibility() == View.VISIBLE) return;
+        if (mSnackbarHeight == 0)
+            mSnackbarHeight = mSnackbar.getView().getHeight();
+
+        mFAB.setTranslationY(Math.min(0,
+                mSnackbar.getView().getTranslationY() - mSnackbarHeight));
+    }
+
+    private void makeSnackbarUnDismissible(){
+        ((android.support.design.widget.CoordinatorLayout.LayoutParams)
+                mSnackbar.getView().getLayoutParams()).setBehavior(null);
     }
 
 

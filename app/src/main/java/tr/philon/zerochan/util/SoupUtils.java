@@ -45,6 +45,28 @@ public class SoupUtils {
         return list;
     }
 
+    public static ArrayList<String> getPopularTags(String page){
+        ArrayList<String> list = new ArrayList<>();
+        Document doc = Jsoup.parse(page);
+        Elements tags = doc.select("div#wrapper div#body div#menu ul li");
+
+        int count = 0;
+        for (Element item : tags) {
+            String tagName = item.select("a").text();
+            tagName = (tagName == null) ? "" : tagName;
+
+            if (tagName.length() > 5 && tagName.substring(tagName.length() - 3, tagName.length()).equals("...")) {
+                tagName = item.select("a").attr("href");
+                tagName = tagName.substring(1, tagName.length());
+                tagName = Uri.decode(tagName);
+            }
+
+            if (count++ > 5 && !tagName.isEmpty()) list.add(tagName);
+        }
+
+        return list;
+    }
+
     public static ArrayList<String> getRelatedTags(String page, String tag) {
         ArrayList<String> list = new ArrayList<>();
         Document doc = Jsoup.parse(page);
