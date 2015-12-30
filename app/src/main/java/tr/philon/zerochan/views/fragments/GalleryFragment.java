@@ -50,6 +50,7 @@ import tr.philon.zerochan.util.PixelUtils;
 import tr.philon.zerochan.util.SoupUtils;
 import tr.philon.zerochan.views.activities.DetailsActivity;
 import tr.philon.zerochan.views.activities.SearchActivity;
+import tr.philon.zerochan.views.activities.TagsActivity;
 import tr.philon.zerochan.views.adapters.GalleryAdapter;
 import tr.philon.zerochan.widget.EndlessScrollListener;
 import tr.philon.zerochan.widget.GridInsetDecoration;
@@ -204,7 +205,8 @@ public class GalleryFragment extends Fragment {
     }
 
     private void showRelatedTagsDrawer() {
-        mRelatedTagsDrawer.openDrawer();
+        if (mRelatedTagsDrawer != null)
+            mRelatedTagsDrawer.openDrawer();
     }
 
     private  void showSortDialog() {
@@ -530,15 +532,14 @@ public class GalleryFragment extends Fragment {
             case VIEW_STATE_ERROR: showError(); break;
             case VIEW_STATE_EMPTY: showEmpty(); break;
             case VIEW_STATE_CONTENT: showContent(); break;
-            case VIEW_STATE_LOADING_MORE: showContent(); break;
-            case VIEW_STATE_LOADING_MORE_ERROR: showLoadingMoreError(); break;
+            case VIEW_STATE_LOADING_MORE: showContent(); loadNextPage(); break;
+            case VIEW_STATE_LOADING_MORE_ERROR: showContent(); showLoadingMoreError(); break;
         }
 
         if (!mDataset.isEmpty())
             isPlaceHolderVisible = mDataset.get(mDataset.size() - 1).isPlaceHolder();
         if (mViewState == VIEW_STATE_LOADING_MORE && isPlaceHolderVisible)
             retryLoadMore();
-
 
         if (mRelatedTags != null)
             initRelatedTagsDrawer();
